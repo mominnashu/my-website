@@ -1,0 +1,102 @@
+{
+  "testedAt": "2026-10-23T13:34:39.267Z",
+  "imageChecks": [
+    {
+      "type": "social_profile",
+      "status": 201,
+      "result": {
+        "_id": "6adb5edfb72695a7b2e462c5",
+        "detectorType": "social_profile",
+        "verdict": "Real / Genuine Profile",
+        "riskScore": 21,
+        "riskBand": "Low",
+        "limitations": "Automated prediction from screenshot evidence. Verify against the original source before taking action.",
+        "createdAt": "2026-10-23T13:19:27.247Z"
+      },
+      "provenance": "Random Forest fake profile model: predicted class 0 (Real) with probability 0.2103",
+      "reportId": "6adb5edfb72695a7b2e462c9"
+    },
+    {
+      "type": "brand_page",
+      "status": 201,
+      "result": {
+        "_id": "6adb5ee0b72695a7b2e462ce",
+        "detectorType": "brand_page",
+        "verdict": "Suspicious",
+        "riskScore": 65,
+        "riskBand": "High",
+        "limitations": "Automated prediction from screenshot evidence. Verify against the original source before taking action.",
+        "createdAt": "2026-10-23T13:19:28.143Z"
+      },
+      "provenance": "Deterministic Brand Registry Verification & Impersonation Heuristics",
+      "reportId": "6adb5ee0b72695a7b2e462d4"
+    },
+    {
+      "type": "scam_text",
+      "status": 201,
+      "result": {
+        "_id": "6adb5ee0b72695a7b2e462d8",
+        "detectorType": "scam_text",
+        "verdict": "Confirmed Scam / Phishing",
+        "riskScore": 64,
+        "riskBand": "High",
+        "limitations": "Automated prediction from screenshot evidence. Verify against the original source before taking action.",
+        "createdAt": "2026-10-23T13:19:28.954Z"
+      },
+      "provenance": "Pipeline LogisticRegression predict_proba on raw text",
+      "reportId": "6adb5ee1b72695a7b2e462de"
+    },
+    {
+      "type": "mobile_app",
+      "status": 201,
+      "result": {
+        "_id": "6adb5ee1b72695a7b2e462e3",
+        "detectorType": "mobile_app",
+        "verdict": "Likely Impersonation",
+        "riskScore": 85,
+        "riskBand": "Critical",
+        "limitations": "Automated prediction from screenshot evidence. Verify against the original source before taking action.",
+        "createdAt": "2026-10-23T13:19:29.832Z"
+      },
+      "provenance": "App Rules Engine against brand \"QA Bank\"",
+      "reportId": "6adb5ee2b72695a7b2e462e9"
+    },
+    {
+      "type": "url",
+      "status": 201,
+      "result": {
+        "_id": "6adb5ee2b72695a7b2e462ee",
+        "detectorType": "url",
+        "verdict": "Legitimate URL",
+        "riskScore": 44,
+        "riskBand": "Medium",
+        "limitations": "Automated prediction from screenshot evidence. Verify against the original source before taking action.",
+        "createdAt": "2026-10-23T13:19:30.848Z"
+      },
+      "provenance": "Deterministic Lexical Rules (Score: 20) | RF Classifier prob: 0.4393",
+      "reportId": "6adb5ee3b72695a7b2e462f2"
+    },
+    {
+      "type": "incomplete_profile",
+      "status": 422,
+      "error": "Upload a complete profile screenshot showing the handle, posts, followers and following counts"
+    },
+    {
+      "type": "blank",
+      "status": 422,
+      "error": "No readable evidence was found. Upload a clearer screenshot with the required information."
+    }
+  ],
+  "findings": {
+    "total": 10,
+    "criticalAppFindings": 2,
+    "otherCompanyFindings": 0
+  },
+  "reports": {
+    "companyReports": 6,
+    "browserReportVisibleToOwner": true,
+    "ownerResolutionVisibleToCompany": true,
+    "otherCompanyReports": 0
+  },
+  "existingModelApis": "Unchanged"
+}
