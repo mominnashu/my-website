@@ -10,7 +10,7 @@ Chrome Manifest V3 extension that checks external links through the existing Ris
 4. Choose **Load unpacked** and select this `chrome-extension` folder.
 5. Open the extension and sign in with a RiskProtect account.
 
-The local API defaults to `http://127.0.0.1:5000/api/v1`. Change it under **Connection settings** for another environment.
+The extension defaults to `https://my-website-th9l.onrender.com/api/v1`. Change it under **Connection settings** when testing another environment.
 
 ## Behavior
 

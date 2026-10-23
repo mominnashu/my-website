@@ -1,4 +1,4 @@
-const DEFAULT_API = 'http://127.0.0.1:5000/api/v1';
+const DEFAULT_API = 'https://my-website-th9l.onrender.com/api/v1';
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 const MAX_CACHE_ITEMS = 300;
 const inflightChecks = new Map();
@@ -84,7 +84,16 @@ async function checkUrl(rawUrl, force = false) {
   return result;
 }
 
-chrome.runtime.onInstalled.addListener(() => storageSet({ autoProtect: true }));
+async function migrateConnectionSettings() {
+  const current = await storageGet(['apiBase', 'autoProtect']);
+  const apiBase = !current.apiBase || /127\.0\.0\.1:5000|localhost:5000/.test(current.apiBase)
+    ? DEFAULT_API
+    : current.apiBase;
+  await storageSet({ apiBase, autoProtect: current.autoProtect !== false });
+}
+
+chrome.runtime.onInstalled.addListener(() => migrateConnectionSettings());
+chrome.runtime.onStartup.addListener(() => migrateConnectionSettings());
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
