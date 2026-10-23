@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { UploadCloud, ArrowRight, ShieldCheck } from 'lucide-react';
-import { getToken } from '../services/api';
+import { API_BASE, getToken } from '../services/api';
 import { services, findingTitle } from './LandingPage';
 export async function workspaceRequest(path, options={}) {
  let response;
  try {
-  response = await fetch('/api/v1/workspace'+path,{...options,headers:{Authorization:'Bearer '+getToken(),...(options.body instanceof FormData?{}:{'Content-Type':'application/json'}),...options.headers}});
+  response = await fetch(API_BASE+'/workspace'+path,{...options,headers:{Authorization:'Bearer '+getToken(),...(options.body instanceof FormData?{}:{'Content-Type':'application/json'}),...options.headers}});
  } catch {
   throw new Error('RiskProtect could not reach the scan service. Check that the API is running, then try again.');
  }
