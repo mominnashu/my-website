@@ -29,7 +29,7 @@ export const caseService = {
 
   async listCases(query, user) {
     if (mongoose.connection.readyState !== 1) {
-      let filtered = [...memoryStore.cases];
+      let filtered = memoryStore.cases.filter(item => String(item.organizationId) === String(user.organizationId));
       if (query.status) filtered = filtered.filter((c) => c.status === query.status);
       if (query.priority) filtered = filtered.filter((c) => c.priority === query.priority);
       return {
@@ -72,7 +72,7 @@ export const caseService = {
 
   async getCaseById(caseId, user) {
     if (mongoose.connection.readyState !== 1) {
-      const caseDoc = memoryStore.cases.find((c) => c._id === caseId);
+      const caseDoc = memoryStore.cases.find((c) => c._id === caseId && String(c.organizationId) === String(user.organizationId));
       if (!caseDoc) {
         const error = new Error("Case not found");
         error.statusCode = 404;
@@ -101,7 +101,7 @@ export const caseService = {
 
   async updateCase(caseId, data, user) {
     if (mongoose.connection.readyState !== 1) {
-      const caseDoc = memoryStore.cases.find((c) => c._id === caseId);
+      const caseDoc = memoryStore.cases.find((c) => c._id === caseId && String(c.organizationId) === String(user.organizationId));
       if (!caseDoc) {
         const error = new Error("Case not found");
         error.statusCode = 404;
@@ -140,7 +140,7 @@ export const caseService = {
     };
 
     if (mongoose.connection.readyState !== 1) {
-      const caseDoc = memoryStore.cases.find((c) => c._id === caseId);
+      const caseDoc = memoryStore.cases.find((c) => c._id === caseId && String(c.organizationId) === String(user.organizationId));
       if (!caseDoc) {
         const error = new Error("Case not found");
         error.statusCode = 404;
@@ -168,7 +168,7 @@ export const caseService = {
 
   async attachDetection(caseId, detectionId, user) {
     if (mongoose.connection.readyState !== 1) {
-      const caseDoc = memoryStore.cases.find((c) => c._id === caseId);
+      const caseDoc = memoryStore.cases.find((c) => c._id === caseId && String(c.organizationId) === String(user.organizationId));
       if (!caseDoc) {
         const error = new Error("Case not found");
         error.statusCode = 404;

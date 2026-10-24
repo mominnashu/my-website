@@ -5,7 +5,7 @@ import { memoryStore } from "../utils/memoryStore.js";
 export const alertService = {
   async listAlerts(query, user) {
     if (mongoose.connection.readyState !== 1) {
-      let filtered = [...memoryStore.alerts];
+      let filtered = memoryStore.alerts.filter(item => String(item.organizationId) === String(user.organizationId));
       if (query.status) filtered = filtered.filter((a) => a.status === query.status);
       if (query.severity) filtered = filtered.filter((a) => a.severity === query.severity);
       return {
@@ -50,7 +50,7 @@ export const alertService = {
 
   async getAlertById(alertId, user) {
     if (mongoose.connection.readyState !== 1) {
-      const alert = memoryStore.alerts.find((a) => a._id === alertId);
+      const alert = memoryStore.alerts.find((a) => a._id === alertId && String(a.organizationId) === String(user.organizationId));
       if (!alert) {
         const error = new Error("Alert not found");
         error.statusCode = 404;
@@ -79,7 +79,7 @@ export const alertService = {
 
   async acknowledgeAlert(alertId, user) {
     if (mongoose.connection.readyState !== 1) {
-      const alert = memoryStore.alerts.find((a) => a._id === alertId);
+      const alert = memoryStore.alerts.find((a) => a._id === alertId && String(a.organizationId) === String(user.organizationId));
       if (!alert) {
         const error = new Error("Alert not found");
         error.statusCode = 404;
@@ -113,7 +113,7 @@ export const alertService = {
 
   async updateAlert(alertId, data, user) {
     if (mongoose.connection.readyState !== 1) {
-      const alert = memoryStore.alerts.find((a) => a._id === alertId);
+      const alert = memoryStore.alerts.find((a) => a._id === alertId && String(a.organizationId) === String(user.organizationId));
       if (!alert) {
         const error = new Error("Alert not found");
         error.statusCode = 404;
