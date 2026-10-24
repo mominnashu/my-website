@@ -1,0 +1,38 @@
+{
+  "product": {
+    "name": "RiskProtect",
+    "purpose": {
+      "en": "RiskProtect helps students, professionals, and organizations check suspicious online evidence before they click, reply, pay, download, or share information.",
+      "hi": "RiskProtect छात्रों, पेशेवरों और संगठनों को क्लिक करने, जवाब देने, भुगतान करने, डाउनलोड करने या जानकारी साझा करने से पहले संदिग्ध ऑनलाइन सामग्री की जाँच करने में मदद करता है।",
+      "te": "RiskProtect విద్యార్థులు, వృత్తి నిపుణులు మరియు సంస్థలు క్లిక్ చేయడం, సమాధానం ఇవ్వడం, చెల్లించడం, డౌన్‌లోడ్ చేయడం లేదా సమాచారం పంచుకోవడం ముందు అనుమానాస్పద ఆన్‌లైన్ ఆధారాలను తనిఖీ చేయడంలో సహాయపడుతుంది."
+    },
+    "audiences": ["student", "professional", "organization"],
+    "services": [
+      { "id": "social_profile", "en": "Social accounts", "hi": "सोशल अकाउंट", "te": "సోషల్ ఖాతాలు", "input": "Complete profile screenshot", "output": "Real profile or Fake profile" },
+      { "id": "brand_page", "en": "Brand pages", "hi": "ब्रांड पेज", "te": "బ్రాండ్ పేజీలు", "input": "Page screenshot with name and full URL", "output": "Brand page risk result" },
+      { "id": "scam_text", "en": "Messages", "hi": "संदेश", "te": "సందేశాలు", "input": "Complete message text or screenshot", "output": "Message risk result" },
+      { "id": "mobile_app", "en": "Mobile apps", "hi": "मोबाइल ऐप", "te": "మొబైల్ యాప్‌లు", "input": "App listing screenshot with package and developer", "output": "App listing risk result" },
+      { "id": "url", "en": "Website links", "hi": "वेबसाइट लिंक", "te": "వెబ్‌సైట్ లింకులు", "input": "Complete HTTP or HTTPS link", "output": "Risk not detected, Risk detected, or High risk detected" }
+    ],
+    "trial": { "days": 3, "maximumChecks": 25, "paymentCollectedDuringTrial": false },
+    "plans": [
+      { "name": "Student Free", "monthlyPriceInr": 0, "monthlyChecks": 10, "seats": 1 },
+      { "name": "Student Starter", "monthlyPriceInr": 99, "monthlyChecks": 40, "seats": 1 },
+      { "name": "Student Plus", "monthlyPriceInr": 199, "monthlyChecks": 100, "seats": 1 },
+      { "name": "Professional", "monthlyPriceInr": 499, "monthlyChecks": 100, "seats": 1 },
+      { "name": "Professional Plus", "monthlyPriceInr": 999, "monthlyChecks": 500, "seats": 5 },
+      { "name": "Organization", "monthlyPriceInr": 4999, "monthlyChecks": 2500, "seats": 25 },
+      { "name": "Organization Scale", "monthlyPriceInr": 9999, "monthlyChecks": 10000, "seats": 100 }
+    ],
+    "workflows": ["Findings", "Alerts", "Investigations", "Review requests", "Brand references", "Plan and usage"],
+    "extension": {
+      "name": "RiskProtect Link Guard",
+      "browser": "Chrome",
+      "behavior": ["Checks the active tab", "Prechecks external links on hover or keyboard focus", "Warns for medium risk", "Blocks high and critical risk links", "Saves results to the signed-in workspace"]
+    },
+    "privacy": {
+      "publicAssistantAllowed": ["Product information", "Features", "Inputs", "Result meanings", "Plans", "Trial", "Registration", "Chrome extension", "General safety guidance"],
+      "publicAssistantForbidden": ["Passwords", "Tokens", "User emails", "Personal information", "Company records", "Detection evidence", "Reports", "Payment data", "Private model details"]
+    }
+  }
+}

@@ -63,6 +63,14 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // Public platform assistant
+  async askAssistant(message, language) {
+    return request('/chatbot/message', {
+      method: 'POST',
+      body: JSON.stringify({ message, language }),
+    });
+  },
+
   // Auth
   async login(email, password) {
     const data = await request('/auth/login', {

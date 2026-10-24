@@ -1,0 +1,64 @@
+{
+  "fallback": {
+    "en": "I can explain RiskProtect features, pricing, the three-day trial, evidence checks, dashboards, review requests, privacy, and the Chrome extension. Please ask one of those questions.",
+    "hi": "मैं RiskProtect की सुविधाएँ, कीमतें, तीन दिन का ट्रायल, साक्ष्य जाँच, डैशबोर्ड, समीक्षा अनुरोध, गोपनीयता और Chrome एक्सटेंशन समझा सकता हूँ। इनमें से किसी विषय पर पूछें।",
+    "te": "నేను RiskProtect ఫీచర్లు, ధరలు, మూడు రోజుల ట్రయల్, ఆధారాల తనిఖీలు, డ్యాష్‌బోర్డులు, రివ్యూ అభ్యర్థనలు, గోప్యత మరియు Chrome ఎక్స్‌టెన్షన్ గురించి వివరించగలను. వీటిలో ఏదైనా అడగండి."
+  },
+  "sensitive": {
+    "en": "I cannot access or reveal passwords, tokens, personal details, company records, submitted evidence, reports, or payment data. Sign in to your secure workspace to view information you are authorized to access.",
+    "hi": "मैं पासवर्ड, टोकन, निजी विवरण, कंपनी रिकॉर्ड, जमा किए गए साक्ष्य, रिपोर्ट या भुगतान डेटा नहीं देख या बता सकता। अधिकृत जानकारी देखने के लिए अपने सुरक्षित वर्कस्पेस में साइन इन करें।",
+    "te": "నేను పాస్‌వర్డ్‌లు, టోకెన్లు, వ్యక్తిగత వివరాలు, కంపెనీ రికార్డులు, సమర్పించిన ఆధారాలు, రిపోర్టులు లేదా చెల్లింపు డేటాను చూడలేను లేదా వెల్లడించలేను. మీకు అనుమతి ఉన్న సమాచారాన్ని చూడటానికి సురక్షిత వర్క్‌స్పేస్‌లో సైన్ ఇన్ చేయండి."
+  },
+  "intents": [
+    {
+      "id": "greeting",
+      "keywords": { "en": ["hello", "hi", "hey"], "hi": ["नमस्ते", "हेलो", "हाय"], "te": ["నమస్తే", "హలో", "హాయ్"] },
+      "answer": { "en": "Hello. I am the RiskProtect assistant. I can explain the platform, plans, trial, evidence checks, dashboards, privacy, and Chrome extension.", "hi": "नमस्ते। मैं RiskProtect सहायक हूँ। मैं प्लेटफ़ॉर्म, प्लान, ट्रायल, साक्ष्य जाँच, डैशबोर्ड, गोपनीयता और Chrome एक्सटेंशन के बारे में बता सकता हूँ।", "te": "నమస్తే. నేను RiskProtect సహాయకుడిని. ప్లాట్‌ఫారమ్, ప్లాన్‌లు, ట్రయల్, ఆధారాల తనిఖీలు, డ్యాష్‌బోర్డులు, గోప్యత మరియు Chrome ఎక్స్‌టెన్షన్ గురించి వివరించగలను." }
+    },
+    {
+      "id": "overview",
+      "keywords": { "en": ["what is", "platform", "riskprotect", "about"], "hi": ["क्या है", "प्लेटफॉर्म", "रिस्कप्रोटेक्ट", "जानकारी"], "te": ["ఏమిటి", "ప్లాట్‌ఫారమ్", "రిస్క్‌ప్రొటెక్ట్", "గురించి"] },
+      "answer": { "en": "RiskProtect is a digital risk protection platform for students, professionals, and organizations. It checks suspicious social accounts, brand pages, messages, mobile app listings, and website links, then gives a clear risk result and next step.", "hi": "RiskProtect छात्रों, पेशेवरों और संगठनों के लिए डिजिटल जोखिम सुरक्षा प्लेटफ़ॉर्म है। यह संदिग्ध सोशल अकाउंट, ब्रांड पेज, संदेश, मोबाइल ऐप लिस्टिंग और वेबसाइट लिंक जाँचकर स्पष्ट जोखिम परिणाम और अगला कदम बताता है।", "te": "RiskProtect విద్యార్థులు, వృత్తి నిపుణులు మరియు సంస్థల కోసం డిజిటల్ రిస్క్ ప్రొటెక్షన్ ప్లాట్‌ఫారమ్. ఇది అనుమానాస్పద సోషల్ ఖాతాలు, బ్రాండ్ పేజీలు, సందేశాలు, మొబైల్ యాప్ లిస్టింగ్లు మరియు వెబ్‌సైట్ లింకులను తనిఖీ చేసి స్పష్టమైన రిస్క్ ఫలితం మరియు తదుపరి చర్యను చూపిస్తుంది." }
+    },
+    {
+      "id": "services",
+      "keywords": { "en": ["services", "check", "models", "features", "scan"], "hi": ["सेवा", "जाँच", "फीचर", "स्कैन", "मॉडल"], "te": ["సేవలు", "తనిఖీ", "ఫీచర్లు", "స్కాన్", "మోడల్"] },
+      "answer": { "en": "You can check five evidence types: social accounts, brand pages, suspicious messages, mobile app listings, and website links. Paste message text or a complete link, or upload the required screenshot. The platform shows understandable results without exposing technical algorithm names.", "hi": "आप पाँच प्रकार के साक्ष्य जाँच सकते हैं: सोशल अकाउंट, ब्रांड पेज, संदिग्ध संदेश, मोबाइल ऐप लिस्टिंग और वेबसाइट लिंक। संदेश का टेक्स्ट या पूरा लिंक पेस्ट करें, या आवश्यक स्क्रीनशॉट अपलोड करें। प्लेटफ़ॉर्म तकनीकी एल्गोरिदम नाम दिखाए बिना आसान परिणाम देता है।", "te": "మీరు ఐదు రకాల ఆధారాలను తనిఖీ చేయవచ్చు: సోషల్ ఖాతాలు, బ్రాండ్ పేజీలు, అనుమానాస్పద సందేశాలు, మొబైల్ యాప్ లిస్టింగ్లు మరియు వెబ్‌సైట్ లింకులు. సందేశం టెక్స్ట్ లేదా పూర్తి లింక్‌ను పేస్ట్ చేయండి, లేదా అవసరమైన స్క్రీన్‌షాట్‌ను అప్లోడ్ చేయండి. సాంకేతిక అల్గోరిథం పేర్లు చూపకుండా సులభమైన ఫలితాలను ఇస్తుంది." }
+    },
+    {
+      "id": "pricing",
+      "keywords": { "en": ["price", "pricing", "plan", "cost", "subscription", "rupees"], "hi": ["कीमत", "प्लान", "लागत", "सब्सक्रिप्शन", "रुपये"], "te": ["ధర", "ప్లాన్", "ఖర్చు", "సబ్‌స్క్రిప్షన్", "రూపాయలు"] },
+      "answer": { "en": "Student plans are Free with 10 checks, Starter at ₹99 with 40 checks, and Plus at ₹199 with 100 checks per month. Professional plans are ₹499 for 100 checks and ₹999 for 500 checks. Organization plans are ₹4,999 for 2,500 checks and ₹9,999 for 10,000 checks per month.", "hi": "Student प्लान में Free के साथ 10 जाँच, Starter ₹99 में 40 जाँच और Plus ₹199 में 100 जाँच प्रति माह मिलती हैं। Professional प्लान ₹499 में 100 जाँच और ₹999 में 500 जाँच देते हैं। Organization प्लान ₹4,999 में 2,500 जाँच और ₹9,999 में 10,000 जाँच प्रति माह देते हैं।", "te": "Student ప్లాన్‌లలో Freeతో నెలకు 10 తనిఖీలు, Starter ₹99కి 40 తనిఖీలు, Plus ₹199కి 100 తనిఖీలు ఉంటాయి. Professional ప్లాన్‌లు ₹499కి 100 తనిఖీలు, ₹999కి 500 తనిఖీలు ఇస్తాయి. Organization ప్లాన్‌లు ₹4,999కి 2,500 తనిఖీలు, ₹9,999కి 10,000 తనిఖీలు నెలకు ఇస్తాయి." }
+    },
+    {
+      "id": "trial",
+      "keywords": { "en": ["trial", "free trial", "three days", "3 days", "card"], "hi": ["ट्रायल", "तीन दिन", "3 दिन", "कार्ड"], "te": ["ట్రయల్", "మూడు రోజులు", "3 రోజులు", "కార్డ్"] },
+      "answer": { "en": "Every paid plan starts with a three-day free trial and allows up to 25 checks in total. No payment card is collected during registration. Student Free is a continuing free plan with 10 checks each month and has no trial.", "hi": "हर paid प्लान तीन दिन के मुफ्त ट्रायल से शुरू होता है और कुल 25 जाँच देता है। रजिस्ट्रेशन के समय भुगतान कार्ड नहीं लिया जाता। Student Free लगातार मुफ्त प्लान है जिसमें हर महीने 10 जाँच मिलती हैं और ट्रायल नहीं होता।", "te": "ప్రతి paid ప్లాన్ మూడు రోజుల ఉచిత ట్రయల్‌తో ప్రారంభమై మొత్తం 25 తనిఖీలను అనుమతిస్తుంది. రిజిస్ట్రేషన్ సమయంలో చెల్లింపు కార్డ్ తీసుకోరు. Student Free నిరంతర ఉచిత ప్లాన్, ఇందులో నెలకు 10 తనిఖీలు ఉంటాయి మరియు ట్రయల్ ఉండదు." }
+    },
+    {
+      "id": "results",
+      "keywords": { "en": ["result", "risk level", "safe", "unsafe", "score", "meaning"], "hi": ["परिणाम", "जोखिम", "सुरक्षित", "स्कोर", "मतलब"], "te": ["ఫలితం", "రిస్క్", "సురక్షితం", "స్కోర్", "అర్థం"] },
+      "answer": { "en": "For website links, Low means Risk not detected, Medium means Risk detected and use caution, and High or Critical means High risk detected. A result supports your decision but does not guarantee safety, so verify important requests through an official source.", "hi": "वेबसाइट लिंक में Low का अर्थ Risk not detected, Medium का अर्थ Risk detected और सावधानी, तथा High या Critical का अर्थ High risk detected है। परिणाम निर्णय में मदद करता है लेकिन सुरक्षा की गारंटी नहीं देता, इसलिए महत्वपूर्ण अनुरोध को आधिकारिक स्रोत से सत्यापित करें।", "te": "వెబ్‌సైట్ లింకులలో Low అంటే Risk not detected, Medium అంటే Risk detected మరియు జాగ్రత్త, High లేదా Critical అంటే High risk detected. ఫలితం నిర్ణయానికి సహాయం చేస్తుంది కానీ భద్రతకు హామీ కాదు, కాబట్టి ముఖ్యమైన అభ్యర్థనలను అధికారిక మూలం ద్వారా ధృవీకరించండి." }
+    },
+    {
+      "id": "dashboard",
+      "keywords": { "en": ["dashboard", "finding", "alert", "investigation", "report", "review"], "hi": ["डैशबोर्ड", "फाइंडिंग", "अलर्ट", "जाँच मामला", "रिपोर्ट", "रिव्यू"], "te": ["డ్యాష్‌బోర్డ్", "ఫైండింగ్", "అలర్ట్", "ఇన్వెస్టిగేషన్", "రిపోర్ట్", "రివ్యూ"] },
+      "answer": { "en": "After sign-in, your dashboard shows checks, findings, higher-risk alerts, investigations, registered brand references, review requests, and plan usage. The wording and recommended actions change for Student, Professional, and Organization workspaces.", "hi": "साइन इन के बाद डैशबोर्ड में जाँच, परिणाम, अधिक जोखिम वाले अलर्ट, जाँच मामले, रजिस्टर्ड ब्रांड जानकारी, समीक्षा अनुरोध और प्लान उपयोग दिखते हैं। Student, Professional और Organization वर्कस्पेस के अनुसार भाषा और सुझाए गए कदम बदलते हैं।", "te": "సైన్ ఇన్ తర్వాత డ్యాష్‌బోర్డ్‌లో తనిఖీలు, ఫలితాలు, అధిక రిస్క్ అలర్ట్లు, ఇన్వెస్టిగేషన్లు, నమోదు చేసిన బ్రాండ్ వివరాలు, రివ్యూ అభ్యర్థనలు మరియు ప్లాన్ వినియోగం కనిపిస్తాయి. Student, Professional మరియు Organization వర్క్‌స్పేస్‌లకు అనుగుణంగా భాష మరియు సూచనలు మారుతాయి." }
+    },
+    {
+      "id": "extension",
+      "keywords": { "en": ["extension", "chrome", "block link", "automatic link"], "hi": ["एक्सटेंशन", "क्रोम", "लिंक ब्लॉक", "ऑटो लिंक"], "te": ["ఎక్స్‌టెన్షన్", "క్రోమ్", "లింక్ బ్లాక్", "ఆటో లింక్"] },
+      "answer": { "en": "RiskProtect Link Guard is the Chrome extension. It can check the active tab, precheck external links on hover or keyboard focus, warn for Medium risk, and block High or Critical links. It uses the signed-in RiskProtect account and saves results to that workspace.", "hi": "RiskProtect Link Guard Chrome एक्सटेंशन है। यह सक्रिय टैब जाँच सकता है, hover या keyboard focus पर बाहरी लिंक पहले जाँच सकता है, Medium जोखिम पर चेतावनी देता है और High या Critical लिंक ब्लॉक करता है। यह साइन इन किए गए RiskProtect खाते का उपयोग करता है।", "te": "RiskProtect Link Guard Chrome ఎక్స్‌టెన్షన్. ఇది ప్రస్తుత ట్యాబ్‌ను తనిఖీ చేస్తుంది, hover లేదా keyboard focus సమయంలో బయటి లింకులను ముందుగా తనిఖీ చేస్తుంది, Medium రిస్క్‌కు హెచ్చరిస్తుంది మరియు High లేదా Critical లింకులను బ్లాక్ చేస్తుంది. ఇది సైన్ ఇన్ చేసిన RiskProtect ఖాతాను ఉపయోగిస్తుంది." }
+    },
+    {
+      "id": "privacy",
+      "keywords": { "en": ["privacy", "data", "sensitive", "secure", "password"], "hi": ["गोपनीयता", "डेटा", "संवेदनशील", "सुरक्षित", "पासवर्ड"], "te": ["గోప్యత", "డేటా", "సున్నితమైన", "సురక్షితం", "పాస్‌వర్డ్"] },
+      "answer": { "en": "The public assistant answers only approved product information. It does not read passwords, tokens, personal details, company records, evidence, reports, or payment information. Account data remains behind sign-in and workspace authorization.", "hi": "पब्लिक सहायक केवल स्वीकृत उत्पाद जानकारी देता है। यह पासवर्ड, टोकन, निजी विवरण, कंपनी रिकॉर्ड, साक्ष्य, रिपोर्ट या भुगतान जानकारी नहीं पढ़ता। खाते का डेटा साइन इन और वर्कस्पेस अनुमति के पीछे रहता है।", "te": "పబ్లిక్ సహాయకుడు ఆమోదించిన ఉత్పత్తి సమాచారాన్ని మాత్రమే ఇస్తాడు. ఇది పాస్‌వర్డ్‌లు, టోకెన్లు, వ్యక్తిగత వివరాలు, కంపెనీ రికార్డులు, ఆధారాలు, రిపోర్టులు లేదా చెల్లింపు సమాచారాన్ని చదవదు. ఖాతా డేటా సైన్ ఇన్ మరియు వర్క్‌స్పేస్ అనుమతుల వెనుక ఉంటుంది." }
+    },
+    {
+      "id": "registration",
+      "keywords": { "en": ["register", "sign up", "create account", "login", "sign in"], "hi": ["रजिस्टर", "साइन अप", "खाता", "लॉगिन", "साइन इन"], "te": ["రిజిస్టర్", "సైన్ అప్", "ఖాతా", "లాగిన్", "సైన్ ఇన్"] },
+      "answer": { "en": "Choose Student, Professional, or Organization, enter your name and workspace details, choose a plan, then create the account with email and password. Paid plans begin with the three-day trial. Existing users can choose Sign in from the navigation bar.", "hi": "Student, Professional या Organization चुनें, नाम और वर्कस्पेस विवरण भरें, प्लान चुनें, फिर ईमेल और पासवर्ड से खाता बनाएँ। Paid प्लान तीन दिन के ट्रायल से शुरू होते हैं। मौजूदा उपयोगकर्ता नेविगेशन बार से Sign in चुन सकते हैं।", "te": "Student, Professional లేదా Organization ఎంచుకుని, పేరు మరియు వర్క్‌స్పేస్ వివరాలు నమోదు చేసి, ప్లాన్ ఎంచుకుని, ఇమెయిల్ మరియు పాస్‌వర్డ్‌తో ఖాతా సృష్టించండి. Paid ప్లాన్‌లు మూడు రోజుల ట్రయల్‌తో ప్రారంభమవుతాయి. ఇప్పటికే ఖాతా ఉన్నవారు నావిగేషన్ బార్‌లో Sign in ఎంచుకోవచ్చు." }
+    }
+  ]
+}
