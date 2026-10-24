@@ -27,7 +27,7 @@ router.get('/findings', wrap(async (req,res) => {
 
 router.get('/reports', wrap(async (req,res) => {
  const filter = req.user.role === 'super_admin' ? {} : { organizationId: req.user.organizationId };
- const items = await Report.find(filter).populate('organizationId','name').populate('detectionId','detectorType verdict riskScore riskBand').sort({createdAt:-1}).limit(200);
+ const items = await Report.find(filter).populate('organizationId','name').populate('detectionId','detectorType verdict riskScore riskBand reasonCodes evidence').populate('caseId','title status priority').sort({createdAt:-1}).limit(200);
  return sendSuccess(res,{items});
 }));
 router.post('/reports', wrap(async (req,res) => {
@@ -39,7 +39,7 @@ router.post('/reports', wrap(async (req,res) => {
  return sendSuccess(res,{report},201);
 }));
 router.patch('/reports/:id', requireRoles('super_admin'), wrap(async (req,res) => {
- const body = z.object({status:z.enum(['submitted','reviewing','resolved']),ownerNote:z.string().trim().max(2000).default('')}).parse(req.body);
+ const body = z.object({status:z.enum(['submitted','reviewing','resolved']),ownerNote:z.string().trim().max(4000).default('')}).parse(req.body);
  if (!/^[a-f\d]{24}$/i.test(req.params.id)) fail('Invalid report',400);
  const report = await Report.findByIdAndUpdate(req.params.id,body,{new:true,runValidators:true});
  if (!report) fail('Report not found',404);

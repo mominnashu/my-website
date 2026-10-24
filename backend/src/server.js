@@ -3,12 +3,14 @@ import { env } from "./config/env.js";
 import { connectDatabase } from "./config/database.js";
 import { logger } from "./utils/logger.js";
 import mongoose from "mongoose";
+import { startReportAutomation, stopReportAutomation } from "./services/reportAutomation.service.js";
 
 async function bootstrap() {
   logger.info("Initializing RiskProtect Backend Server...");
 
   // Connect to MongoDB
   await connectDatabase();
+  startReportAutomation();
 
   const server = app.listen(env.PORT, () => {
     logger.info(`RiskProtect API Server listening on port ${env.PORT} in ${env.NODE_ENV} mode`);
@@ -18,6 +20,7 @@ async function bootstrap() {
   // Graceful shutdown handling
   const shutdown = async (signal) => {
     logger.info(`Received ${signal}. Shutting down gracefully...`);
+    stopReportAutomation();
     server.close(async () => {
       logger.info("HTTP server closed.");
       try {
