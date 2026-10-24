@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bot, Languages, Mic, MicOff, Send, Volume2, VolumeX, X } from 'lucide-react';
+import { Languages, Mic, MicOff, Send, Volume2, VolumeX, X } from 'lucide-react';
 import { api } from '../services/api';
 import './PlatformAssistant.css';
 
@@ -11,7 +11,13 @@ const copy = {
 const speechLocales = { en: 'en-IN', hi: 'hi-IN', te: 'te-IN' };
 
 function Mascot() {
-  return <span className="assistant-mascot" aria-hidden="true"><span className="assistant-antenna"/><span className="assistant-face"><i/><i/></span><Bot size={21}/></span>;
+  return <span className="assistant-mascot" aria-hidden="true">
+    <span className="assistant-antenna"/>
+    <span className="assistant-head"><span className="assistant-face"><i/><i/></span></span>
+    <span className="assistant-body"><b>&gt;_</b></span>
+    <span className="assistant-arm left"/><span className="assistant-arm right"/>
+    <span className="assistant-leg left"/><span className="assistant-leg right"/>
+  </span>;
 }
 
 export default function PlatformAssistant() {
