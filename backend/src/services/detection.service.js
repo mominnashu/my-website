@@ -21,17 +21,45 @@ function sanitizeDoc(doc) {
   return clean;
 }
 
+function fingerprintFor(doc) {
+  const source=doc.sourceMetadata||{};
+  const raw=doc.detectorType==='social_profile' ? `${source.platform}:${source.username||source.profileUrl}`
+    : doc.detectorType==='brand_page' ? `${source.platform}:${source.pageUrl||source.handle||source.pageName}`
+    : doc.detectorType==='mobile_app' ? `${source.store_name}:${source.package_name||source.app_name}`
+    : doc.detectorType==='url' ? source.url
+    : source.reportedAccountUrl || '';
+  return raw ? `${doc.detectorType}:${String(raw).trim().toLowerCase()}` : '';
+}
+
+function enrichDetection(doc) {
+  const official=(doc.reasonCodes||[]).some(code=>String(code).startsWith('OFFICIAL_'));
+  const explanation=doc.evidence?.[0]?.finding || doc.scoreProvenance || 'Automated evidence assessment';
+  return {
+    ...doc,
+    assetFingerprint:fingerprintFor(doc),
+    isOfficialAsset:official,
+    investigationStatus:official?'closed':'new',
+    scoreBreakdown:doc.scoreBreakdown?.length?doc.scoreBreakdown:[{signal:official?'Official asset match':'Combined evidence assessment',evidence:explanation,contribution:doc.riskScore||0}],
+    decisionHistory:[{from:'',to:official?'closed':'new',note:official?'Matched an official registered brand asset.':'Detection created and queued for analyst review.',actorName:'RiskProtect'}],
+  };
+}
+
 async function createDetectionRecord(doc) {
+  const enriched=enrichDetection(doc);
   if (mongoose.connection.readyState !== 1) {
+    const existing=enriched.assetFingerprint&&memoryStore.detections.find(item=>item.organizationId===enriched.organizationId&&item.assetFingerprint===enriched.assetFingerprint&&!['closed','false_positive'].includes(item.investigationStatus));
+    if(existing){existing.lastSeenAt=new Date();existing.seenCount=(existing.seenCount||1)+1;existing.riskScore=enriched.riskScore;existing.riskBand=enriched.riskBand;existing.evidence=enriched.evidence;return existing;}
     const record = {
       _id: "det-" + uuidv4().slice(0, 8),
       createdAt: new Date(),
-      ...doc,
+      ...enriched,
     };
     memoryStore.detections.push(record);
     return record;
   }
-  return Detection.create(sanitizeDoc(doc));
+  const clean=sanitizeDoc(enriched);
+  if(clean.assetFingerprint){const existing=await Detection.findOneAndUpdate({organizationId:clean.organizationId,assetFingerprint:clean.assetFingerprint,investigationStatus:{$nin:['closed','false_positive']}},{$set:{lastSeenAt:new Date(),riskScore:clean.riskScore,riskBand:clean.riskBand,evidence:clean.evidence,reasonCodes:clean.reasonCodes},$inc:{seenCount:1}},{new:true});if(existing)return existing;}
+  return Detection.create(clean);
 }
 
 async function createAlertRecord(doc) {
@@ -70,6 +98,11 @@ function calculateRiskBand(score) {
   if (score >= 60) return "High";
   if (score >= 30) return "Medium";
   return "Low";
+}
+
+function textSimilarity(left='',right=''){
+  const grams=value=>{const clean=String(value).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();const set=new Set();for(let i=0;i<clean.length-1;i++)set.add(clean.slice(i,i+2));return set;};
+  const a=grams(left),b=grams(right);if(!a.size||!b.size)return 0;const shared=[...a].filter(value=>b.has(value)).length;return shared/(a.size+b.size-shared);
 }
 
 function calculateSeverityFromRisk(riskBand) {
@@ -249,6 +282,7 @@ export const detectionService = {
 
     const evidence = [];
     const reasonCodes = [];
+    const scoreBreakdown = [{signal:'Unverified public asset',evidence:'The page is not yet matched to a registered official handle.',contribution:15}];
     let riskScore = 15;
 
     // Check handle match
@@ -265,6 +299,7 @@ export const detectionService = {
         finding: "Handle matches verified brand registry",
         verified: true,
       });
+      scoreBreakdown.splice(0,scoreBreakdown.length,{signal:'Official handle match',evidence:`The ${platform} handle matches the registered official brand asset.`,contribution:5});
     } else {
       // Impersonation risk checks
       const pageNameLower = pageName.toLowerCase();
@@ -277,6 +312,7 @@ export const detectionService = {
           finding: `Page name "${pageName}" closely mirrors official brand name "${brandName}"`,
           type: "name_similarity",
         });
+        scoreBreakdown.push({signal:'Similar brand name',evidence:`The page name closely resembles ${brandName}.`,contribution:35});
       }
 
       if (claimedWebsite) {
@@ -290,6 +326,7 @@ export const detectionService = {
             finding: `Claimed website "${claimedWebsite}" is NOT among official brand domains: ${officialDomains.join(", ") || "None"}`,
             type: "domain_mismatch",
           });
+          scoreBreakdown.push({signal:'Domain mismatch',evidence:'The claimed website is not registered as an official brand domain.',contribution:30});
         }
       }
 
@@ -300,6 +337,7 @@ export const detectionService = {
           finding: "Bio contains claims of being official customer support or helpdesk",
           type: "pretexting",
         });
+        scoreBreakdown.push({signal:'Official-support claim',evidence:'The biography claims official or support status without an official handle match.',contribution:15});
       }
     }
 
@@ -333,6 +371,7 @@ export const detectionService = {
       isMlModel: false,
       reasonCodes,
       evidence,
+      scoreBreakdown,
       limitations: "Heuristic brand similarity comparison based on verified registered brand assets.",
       createdBy: user.id,
     });
@@ -345,6 +384,7 @@ export const detectionService = {
         title: `Suspected Impersonating Brand Page: ${pageName} on ${platform}`,
         severity: calculateSeverityFromRisk(riskBand),
         status: "new",
+        assetKey: `brand_page:${String(platform).trim().toLowerCase()}:${String(pageUrl||handle||pageName).trim().toLowerCase()}`,
       });
     }
 
@@ -439,6 +479,9 @@ export const detectionService = {
       app_name,
       package_name,
       developer_name,
+      app_description,
+      official_description,
+      logo_similarity,
       store_name,
       store_url,
       official_package_name,
@@ -474,6 +517,9 @@ export const detectionService = {
       app_name,
       package_name,
       developer_name,
+      app_description,
+      official_description,
+      logo_similarity,
       associated_brand: targetBrandName || app_name,
       brand_name: targetBrandName || app_name,
       store_name,
@@ -512,6 +558,22 @@ export const detectionService = {
       reasonCodes.push("DETECTOR_OFFLINE");
     }
 
+    const nameSimilarity=textSimilarity(app_name,targetBrandName||app_name);
+    const descriptionSimilarity=textSimilarity(app_description,official_description);
+    const publisherMismatch=officialDevs.length>0&&!officialDevs.some(value=>String(value).trim().toLowerCase()===developer_name.trim().toLowerCase());
+    const visibleBreakdown=[];
+    if(nameSimilarity>=0.65)visibleBreakdown.push({signal:'Similar application name',evidence:`The suspected app name is ${Math.round(nameSimilarity*100)}% similar to the protected brand name.`,contribution:25});
+    if(typeof logo_similarity==='number'&&logo_similarity>=0.65)visibleBreakdown.push({signal:'Similar logo',evidence:`The supplied image comparison reports ${Math.round(logo_similarity*100)}% logo resemblance.`,contribution:25});
+    if(descriptionSimilarity>=0.45)visibleBreakdown.push({signal:'Description overlap',evidence:`The public descriptions overlap by ${Math.round(descriptionSimilarity*100)}%.`,contribution:15});
+    if(publisherMismatch)visibleBreakdown.push({signal:'Publisher mismatch',evidence:`${developer_name} is not registered as an official publisher for this brand.`,contribution:25});
+    if(visibleBreakdown.length)riskScore=Math.max(riskScore,Math.min(100,visibleBreakdown.reduce((total,item)=>total+item.contribution,10)));
+
+    const normalizedPackage=package_name.trim().toLowerCase();
+    const normalizedDeveloper=developer_name.trim().toLowerCase();
+    const packageOfficial=officialPkgs.some(value=>String(value).trim().toLowerCase()===normalizedPackage);
+    const developerOfficial=officialDevs.some(value=>String(value).trim().toLowerCase()===normalizedDeveloper);
+    if(packageOfficial&&developerOfficial){verdict='Legitimate App';riskScore=5;reasonCodes=['OFFICIAL_APP_CONFIRMED'];evidence=[{finding:'Package ID and publisher match the registered official application.',verified:true}];limitations='Official asset registry exact match.';}
+
     const riskBand = calculateRiskBand(riskScore);
 
     const detection = await createDetectionRecord({
@@ -535,6 +597,7 @@ export const detectionService = {
       isMlModel: false,
       reasonCodes,
       evidence,
+      scoreBreakdown:packageOfficial&&developerOfficial?[{signal:'Official package and publisher match',evidence:'The package identifier and publisher exactly match registered official assets.',contribution:5}]:(visibleBreakdown.length?visibleBreakdown:[{signal:'Application metadata assessment',evidence:evidence[0]?.finding||'Application metadata was compared with registered official brand assets.',contribution:riskScore}]),
       limitations,
       createdBy: user.id,
     });
@@ -686,6 +749,7 @@ export const detectionService = {
         title: `Phishing Link Detected: ${url}`,
         severity: calculateSeverityFromRisk(riskBand),
         status: "new",
+        assetKey: `url:${String(url).trim().toLowerCase()}`,
       });
     }
 

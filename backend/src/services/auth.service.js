@@ -20,7 +20,7 @@ function slugify(text) {
 
 export const authService = {
   async register({ email, password, name, organizationName, audience = "brand", planId, billingCycle = "monthly" }) {
-    if (mongoose.connection.readyState !== 1) throw Object.assign(new Error("Company accounts require a database connection. Please try again shortly."), { statusCode: 503 });
+    if (mongoose.connection.readyState !== 1 && process.env.ALLOW_IN_MEMORY_ACCOUNTS !== 'true') throw Object.assign(new Error("Brand accounts require a database connection. Please try again shortly."), { statusCode: 503 });
     if (mongoose.connection.readyState !== 1) {
       const existing = memoryStore.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
       if (existing) {
@@ -36,6 +36,8 @@ export const authService = {
         name: orgName,
         slug: slugify(orgName),
         status: "active",
+        audience: "brand",
+        subscription: subscriptionFor(getPlan(planId || recommendedPlanId('brand')), new Date(), billingCycle),
       };
       memoryStore.organizations.push(org);
 
@@ -71,7 +73,9 @@ export const authService = {
           role: user.role,
           organizationId: orgId,
           organizationName: org.name,
-          audience: audience || "organization",
+          brandId: orgId,
+          brandName: org.name,
+          audience: "brand",
         },
       };
     }
@@ -146,7 +150,7 @@ export const authService = {
   },
 
   async login({ email, password }) {
-    if (mongoose.connection.readyState !== 1) throw Object.assign(new Error("Company accounts require a database connection. Please try again shortly."), { statusCode: 503 });
+    if (mongoose.connection.readyState !== 1 && process.env.ALLOW_IN_MEMORY_ACCOUNTS !== 'true') throw Object.assign(new Error("Brand accounts require a database connection. Please try again shortly."), { statusCode: 503 });
     if (mongoose.connection.readyState !== 1) {
       const user = memoryStore.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
       if (!user) {
@@ -181,7 +185,9 @@ export const authService = {
           role: user.role,
           organizationId: user.organizationId,
           organizationName: org ? org.name : "CyberDefense Corp",
-          audience: org?.audience || "organization",
+          brandId: org?._id,
+          brandName: org?.name || "Brand",
+          audience: "brand",
         },
       };
     }

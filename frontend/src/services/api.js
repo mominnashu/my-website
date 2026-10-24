@@ -1,7 +1,7 @@
 // RiskProtect Frontend API Client
 
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL
-  || 'https://my-website-th9l.onrender.com/api/v1').replace(/\/$/, '');
+  || (import.meta.env.PROD ? 'https://my-website-th9l.onrender.com/api/v1' : '/api/v1')).replace(/\/$/, '');
 
 export function getToken() {
   return localStorage.getItem('rp_auth_token') || '';
@@ -144,6 +144,8 @@ export const api = {
   async listBrandVerifications() { return request('/brand-verifications'); },
   async markFalsePositive(id, notes) { return request(`/workspace/findings/${id}/false-positive`, { method:'POST', body:JSON.stringify({ notes }) }); },
   async createTakedownDraft(id) { return request(`/workspace/findings/${id}/takedown-draft`, { method:'POST' }); },
+  async getWorkspaceFinding(id) { return request(`/workspace/findings/${id}`); },
+  async updateFindingStatus(id,status,note) { return request(`/workspace/findings/${id}/status`, { method:'POST', body:JSON.stringify({ status,note }) }); },
 
   // Threat Detections (5 Engines)
   async detectSocialProfile(payload) {

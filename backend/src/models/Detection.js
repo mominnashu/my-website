@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 import { DETECTOR_TYPES, DETECTION_VERDICTS, RISK_BANDS } from "../types/constants.js";
 
+const DecisionHistorySchema = new mongoose.Schema({
+  from: { type:String, default:"" },
+  to: { type:String, required:true },
+  note: { type:String, default:"" },
+  actorId: { type:mongoose.Schema.Types.ObjectId, ref:"User" },
+  actorName: { type:String, default:"" },
+  createdAt: { type:Date, default:Date.now },
+}, { _id:true });
+
 const DetectionSchema = new mongoose.Schema(
   {
     organizationId: {
@@ -78,6 +87,19 @@ const DetectionSchema = new mongoose.Schema(
       index: true,
     },
     analystNotes: { type: String, default: "" },
+    investigationStatus: {
+      type: String,
+      enum: ["new", "under_review", "confirmed", "false_positive", "investigating", "closed"],
+      default: "new",
+      index: true,
+    },
+    decisionHistory: { type:[DecisionHistorySchema], default:[] },
+    scoreBreakdown: { type:[mongoose.Schema.Types.Mixed], default:[] },
+    isOfficialAsset: { type:Boolean, default:false, index:true },
+    assetFingerprint: { type:String, default:"", index:true },
+    firstSeenAt: { type:Date, default:Date.now },
+    lastSeenAt: { type:Date, default:Date.now },
+    seenCount: { type:Number, default:1, min:1 },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -91,5 +113,6 @@ const DetectionSchema = new mongoose.Schema(
 DetectionSchema.index({ organizationId: 1, createdAt: -1 });
 DetectionSchema.index({ organizationId: 1, detectorType: 1, verdict: 1 });
 DetectionSchema.index({ organizationId: 1, riskBand: 1 });
+DetectionSchema.index({ organizationId:1, assetFingerprint:1, investigationStatus:1 });
 
 export const Detection = mongoose.model("Detection", DetectionSchema);

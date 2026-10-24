@@ -81,14 +81,24 @@ async function inspectClaimedWebsite(domain, brandName) {
   } catch { return { source:'Claimed website', title:`${brandName} website`, url:`https://${domain}`, snippet:'The claimed website could not be reached securely.', brandMentioned:false }; }
 }
 
+async function appleAppSources(query){
+  try{const url=new URL('https://itunes.apple.com/search');url.searchParams.set('term',query);url.searchParams.set('entity','software');url.searchParams.set('limit','10');const response=await fetch(url,{signal:timeout(7000)});if(!response.ok)return {items:[],status:'unavailable'};const data=await response.json();return {status:'connected',items:(data.results||[]).map(app=>({platform:'Apple App Store',name:cleanText(app.trackName),publisher:cleanText(app.sellerName),packageId:app.bundleId,url:app.trackViewUrl,icon:app.artworkUrl100,description:cleanText(app.description)}))};}catch{return {items:[],status:'unavailable'};}
+}
+
+async function youtubeChannelSources(query){
+  const key=process.env.YOUTUBE_API_KEY;
+  if(!key)return {items:[],status:'not_configured'};
+  try{const url=new URL('https://www.googleapis.com/youtube/v3/search');url.searchParams.set('part','snippet');url.searchParams.set('type','channel');url.searchParams.set('maxResults','10');url.searchParams.set('q',query);url.searchParams.set('key',key);const response=await fetch(url,{signal:timeout(7000)});if(!response.ok)return {items:[],status:'unavailable'};const data=await response.json();return {status:'connected',items:(data.items||[]).map(item=>({source:'YouTube',title:cleanText(item.snippet?.channelTitle||item.snippet?.title),url:`https://www.youtube.com/channel/${item.id?.channelId}`,snippet:cleanText(item.snippet?.description)}))};}catch{return {items:[],status:'unavailable'};}
+}
+
 export async function verifyBrandIdentity({ brandName, claimedDomain }, user) {
   const domain = normalizeDomain(claimedDomain);
   const registered = await Brand.find({ organizationId:user.organizationId, status:'active' }).select('name officialDomains officialSocialHandles officialAppPackages');
   const matchingRecord = registered.find(brand => brand.name.toLowerCase() === brandName.toLowerCase());
   const officialDomains = (matchingRecord?.officialDomains || []).map(normalizeDomain);
   const domainMatches = Boolean(domain && officialDomains.includes(domain));
-  const [wiki,ddg,social,website] = await Promise.all([wikipediaSources(brandName),duckDuckGoSources(brandName),duckDuckGoSources(`${brandName} official Instagram Facebook LinkedIn X YouTube`),domain ? inspectClaimedWebsite(domain,brandName) : null]);
-  const sources = [...wiki,...ddg,...social,...(website?[website]:[])].filter((item,index,all)=>item.url&&all.findIndex(other=>other.url===item.url)===index).slice(0,30);
+  const [wiki,ddg,social,apps,youtube,website] = await Promise.all([wikipediaSources(brandName),duckDuckGoSources(brandName),duckDuckGoSources(`${brandName} official Instagram Facebook LinkedIn X YouTube`),appleAppSources(brandName),youtubeChannelSources(brandName),domain ? inspectClaimedWebsite(domain,brandName) : null]);
+  const sources = [...wiki,...ddg,...social,...youtube.items,...apps.items.map(app=>({source:app.platform,title:`${app.name} — ${app.publisher}`,url:app.url,snippet:app.description})),...(website?[website]:[])].filter((item,index,all)=>item.url&&all.findIndex(other=>other.url===item.url)===index).slice(0,40);
   const discovery=discoveryDetails(sources,brandName);
   const signals = [];
   if (matchingRecord) signals.push('The brand name matches a brand already registered in this workspace.');
@@ -100,5 +110,5 @@ export async function verifyBrandIdentity({ brandName, claimedDomain }, user) {
   else if (domainMatches || (matchingRecord && website?.brandMentioned)) { status='likely_match'; confidence=70; }
   else if (domain && website && !website.brandMentioned && sources.length) { status='conflicting'; confidence=35; }
   const summary = status==='verified' ? 'Ownership signals match the brand reference and official domain stored in this workspace.' : status==='likely_match' ? 'Several identity signals match, but additional domain ownership proof is recommended.' : status==='conflicting' ? 'Public evidence was found, but the claimed website does not clearly support the ownership claim.' : 'Public references alone cannot prove ownership. Add the official domain to the brand record and verify control of that domain.';
-  return BrandVerification.create({ organizationId:user.organizationId, requestedBy:user.id, brandName, claimedDomain:domain, status, confidence, summary, signals, sources, ...discovery });
+  return BrandVerification.create({ organizationId:user.organizationId, requestedBy:user.id, brandName, claimedDomain:domain, status, confidence, summary, signals, sources, appCandidates:apps.items, providerStatus:[{provider:'Apple App Store',status:apps.status},{provider:'YouTube',status:youtube.status},{provider:'Public web search',status:'connected'}], ...discovery });
 }

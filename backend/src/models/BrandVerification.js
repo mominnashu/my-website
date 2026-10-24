@@ -12,6 +12,8 @@ const BrandVerificationSchema = new mongoose.Schema({
   sources: { type: [mongoose.Schema.Types.Mixed], default: [] },
   socialHandles: { type: [mongoose.Schema.Types.Mixed], default: [] },
   relatedNames: { type: [String], default: [] },
+  appCandidates: { type: [mongoose.Schema.Types.Mixed], default: [] },
+  providerStatus: { type: [mongoose.Schema.Types.Mixed], default: [] },
 }, { timestamps: true });
 
 BrandVerificationSchema.index({ organizationId: 1, createdAt: -1 });
