@@ -16,6 +16,7 @@ export const createBrandSchema = z.object({
     .default([]),
   officialAppPackages: z.array(z.string().trim()).optional().default([]),
   officialDevelopers: z.array(z.string().trim()).optional().default([]),
+  officialLogoFingerprint: z.string().regex(/^[a-f0-9]{16}$/i).optional().default(""),
 });
 
 export const updateBrandSchema = createBrandSchema.partial().extend({

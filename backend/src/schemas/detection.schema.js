@@ -49,6 +49,7 @@ export const mobileAppDetectionSchema = z.object({
   app_description: z.string().optional().default(""),
   official_description: z.string().optional().default(""),
   logo_similarity: z.number().min(0).max(1).optional(),
+  suspected_logo_fingerprint: z.string().regex(/^[a-f0-9]{16}$/i).optional().default(""),
   store_name: z.string().optional().default("Google Play"),
   store_url: z.string().optional().default(""),
   official_package_name: z.string().optional().default(""),

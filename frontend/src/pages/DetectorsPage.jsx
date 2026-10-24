@@ -33,6 +33,7 @@ import {
   parseScamTextOcr,
   detectModelIntentFromOcr,
 } from '../services/ocr';
+import { imageFingerprint } from '../services/imageFingerprint';
 
 export const MODEL_SPECS = {
   social_profile: {
@@ -199,6 +200,7 @@ export default function DetectorsPage({ initialDetector = 'social_profile', onEs
     official_developers: ['Apex Bank NA'],
     brandId: '',
     notes: 'Aggressive rogue loan application scraping contacts and SMS.',
+    suspected_logo_fingerprint: '',
   });
 
   // 5. URL Form State
@@ -1323,6 +1325,12 @@ export default function DetectorsPage({ initialDetector = 'social_profile', onEs
               </div>
 
               <div className="form-group-grid" style={{ marginTop: 14 }}>
+                <div>
+                  <label className="field-label">Suspected app logo</label>
+                  <input type="file" className="input-field" accept="image/png,image/jpeg,image/webp" onChange={async event=>{const file=event.target.files?.[0];if(!file)return;try{setAppForm(current=>({...current,suspected_logo_fingerprint:await imageFingerprint(file)}));}catch(err){setError(err.message);}}}/>
+                  <small className="section-subtitle">Compared automatically with the registered official logo fingerprint.</small>
+                  {appForm.suspected_logo_fingerprint&&<p className="upload-requirements">Suspected logo ready for comparison.</p>}
+                </div>
                 <div>
                   <label className="field-label">Official Package (official_package_name)</label>
                   <input

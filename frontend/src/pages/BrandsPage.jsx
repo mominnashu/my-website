@@ -10,6 +10,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { api } from '../services/api';
+import { imageFingerprint } from '../services/imageFingerprint';
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState([]);
@@ -22,6 +23,7 @@ export default function BrandsPage() {
   const [handlesInput, setHandlesInput] = useState('');
   const [packagesInput, setPackagesInput] = useState('');
   const [developersInput, setDevelopersInput] = useState('');
+  const [logoFingerprint, setLogoFingerprint] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function BrandsPage() {
         officialSocialHandles,
         officialAppPackages,
         officialDevelopers: developersInput.split(',').map(d => d.trim()).filter(Boolean),
+        officialLogoFingerprint: logoFingerprint,
       });
 
       setShowAddModal(false);
@@ -79,6 +82,7 @@ export default function BrandsPage() {
       setHandlesInput('');
       setPackagesInput('');
       setDevelopersInput('');
+      setLogoFingerprint('');
       await loadBrands();
     } catch (err) {
       alert('Failed to register brand: ' + err.message);
@@ -246,6 +250,13 @@ export default function BrandsPage() {
                   value={domainsInput}
                   onChange={(e) => setDomainsInput(e.target.value)}
                 />
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <label className="field-label">Official brand logo</label>
+                <input type="file" className="input-field" accept="image/png,image/jpeg,image/webp" onChange={async event=>{const file=event.target.files?.[0];if(!file)return;try{setLogoFingerprint(await imageFingerprint(file));}catch(err){setError(err.message);}}}/>
+                <small className="section-subtitle">The browser saves only a compact visual fingerprint, not the logo image.</small>
+                {logoFingerprint&&<p className="upload-requirements">Logo fingerprint ready for automatic comparison.</p>}
               </div>
 
               <div style={{ marginTop: 12 }}>

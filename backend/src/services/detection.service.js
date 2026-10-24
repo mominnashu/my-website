@@ -105,6 +105,8 @@ function textSimilarity(left='',right=''){
   const a=grams(left),b=grams(right);if(!a.size||!b.size)return 0;const shared=[...a].filter(value=>b.has(value)).length;return shared/(a.size+b.size-shared);
 }
 
+function fingerprintSimilarity(left='',right=''){if(!/^[a-f0-9]{16}$/i.test(left)||!/^[a-f0-9]{16}$/i.test(right))return null;const a=BigInt(`0x${left}`),b=BigInt(`0x${right}`);let value=a^b,distance=0;while(value){distance+=Number(value&1n);value>>=1n;}return 1-distance/64;}
+
 function calculateSeverityFromRisk(riskBand) {
   return riskBand.toLowerCase();
 }
@@ -482,6 +484,7 @@ export const detectionService = {
       app_description,
       official_description,
       logo_similarity,
+      suspected_logo_fingerprint,
       store_name,
       store_url,
       official_package_name,
@@ -498,6 +501,7 @@ export const detectionService = {
     let officialPkgs = [...official_packages];
     if (official_package_name) officialPkgs.push(official_package_name);
     let officialDevs = [...official_developers];
+    let officialLogoFingerprint = '';
     if (official_developer_name) officialDevs.push(official_developer_name);
 
     if (brandId) {
@@ -507,6 +511,7 @@ export const detectionService = {
           targetBrandName = brand.name;
           officialPkgs = [...new Set([...officialPkgs, ...(brand.officialAppPackages || [])])];
           officialDevs = [...new Set([...officialDevs, ...(brand.officialDevelopers || [])])];
+          officialLogoFingerprint = brand.officialLogoFingerprint || '';
         }
       } catch (err) {
         logger.warn(`Brand lookup in mobile app detection: ${err.message}`);
@@ -520,6 +525,7 @@ export const detectionService = {
       app_description,
       official_description,
       logo_similarity,
+      suspected_logo_fingerprint,
       associated_brand: targetBrandName || app_name,
       brand_name: targetBrandName || app_name,
       store_name,
@@ -558,12 +564,14 @@ export const detectionService = {
       reasonCodes.push("DETECTOR_OFFLINE");
     }
 
+    const automaticLogoSimilarity=fingerprintSimilarity(suspected_logo_fingerprint,officialLogoFingerprint);
+    const effectiveLogoSimilarity=automaticLogoSimilarity??logo_similarity;
     const nameSimilarity=textSimilarity(app_name,targetBrandName||app_name);
     const descriptionSimilarity=textSimilarity(app_description,official_description);
     const publisherMismatch=officialDevs.length>0&&!officialDevs.some(value=>String(value).trim().toLowerCase()===developer_name.trim().toLowerCase());
     const visibleBreakdown=[];
     if(nameSimilarity>=0.65)visibleBreakdown.push({signal:'Similar application name',evidence:`The suspected app name is ${Math.round(nameSimilarity*100)}% similar to the protected brand name.`,contribution:25});
-    if(typeof logo_similarity==='number'&&logo_similarity>=0.65)visibleBreakdown.push({signal:'Similar logo',evidence:`The supplied image comparison reports ${Math.round(logo_similarity*100)}% logo resemblance.`,contribution:25});
+    if(typeof effectiveLogoSimilarity==='number'&&effectiveLogoSimilarity>=0.65)visibleBreakdown.push({signal:'Similar logo',evidence:`The visual fingerprint comparison reports ${Math.round(effectiveLogoSimilarity*100)}% logo resemblance.`,contribution:25});
     if(descriptionSimilarity>=0.45)visibleBreakdown.push({signal:'Description overlap',evidence:`The public descriptions overlap by ${Math.round(descriptionSimilarity*100)}%.`,contribution:15});
     if(publisherMismatch)visibleBreakdown.push({signal:'Publisher mismatch',evidence:`${developer_name} is not registered as an official publisher for this brand.`,contribution:25});
     if(visibleBreakdown.length)riskScore=Math.max(riskScore,Math.min(100,visibleBreakdown.reduce((total,item)=>total+item.contribution,10)));

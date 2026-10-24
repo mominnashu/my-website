@@ -44,6 +44,7 @@ const BrandSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    officialLogoFingerprint: { type:String, default:"", match:/^[a-f0-9]{16}$/i },
     status: {
       type: String,
       enum: ["active", "archived"],
