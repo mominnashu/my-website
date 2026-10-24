@@ -16,7 +16,7 @@ export const createBrandSchema = z.object({
     .default([]),
   officialAppPackages: z.array(z.string().trim()).optional().default([]),
   officialDevelopers: z.array(z.string().trim()).optional().default([]),
-  officialLogoFingerprint: z.string().regex(/^[a-f0-9]{16}$/i).optional().default(""),
+  officialLogoFingerprint: z.string().refine(value => value === "" || /^[a-f0-9]{16}$/i.test(value), "Logo fingerprint must contain 16 hexadecimal characters").optional().default(""),
 });
 
 export const updateBrandSchema = createBrandSchema.partial().extend({

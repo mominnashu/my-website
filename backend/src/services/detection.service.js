@@ -159,6 +159,7 @@ export const detectionService = {
     let isMlModel = true;
     let reasonCodes = [];
     let evidence = [];
+    let scoreBreakdown = [];
     let limitations = "Features provided directly without automated live scraping.";
 
     if (mlResult.success) {
@@ -174,6 +175,7 @@ export const detectionService = {
       modelVersion = pred.model_version || "1.0.0";
       reasonCodes = pred.reason_codes || [];
       evidence = pred.evidence || [];
+      scoreBreakdown.push({signal:'Account behaviour assessment',evidence:`Profile activity produced a ${Math.round(fakeProb*100)}% suspicious-profile probability.`,contribution:riskScore});
       limitations = pred.limitations || limitations;
     } else {
       verdict = "Detector Unavailable";
@@ -184,7 +186,14 @@ export const detectionService = {
         finding: "ML inference service was unreachable during evaluation",
         status: "offline",
       });
+      scoreBreakdown.push({signal:'Assessment unavailable',evidence:'The profile could not be scored by the detection service.',contribution:riskScore});
     }
+
+    const identityText=`${username} ${fullname}`.toLowerCase();
+    const pretextTerms=['official','support','helpdesk','customer care','verification'];
+    if(pretextTerms.some(term=>identityText.includes(term))){riskScore=Math.min(100,riskScore+25);reasonCodes.push('UNVERIFIED_OFFICIAL_OR_SUPPORT_IDENTITY');evidence.push({finding:'The account name claims official or customer-support status.',type:'identity_pretext'});scoreBreakdown.push({signal:'Official or support claim',evidence:'The handle or display name claims official/customer-support status.',contribution:25});}
+    if(posts<=5&&followers<200){riskScore=Math.min(100,riskScore+10);reasonCodes.push('LOW_ACTIVITY_ACCOUNT');evidence.push({finding:'Very low posting history and limited audience.',type:'low_activity'});scoreBreakdown.push({signal:'Low account history',evidence:`Only ${posts} posts and ${followers} followers were reported.`,contribution:10});}
+    if(follows>Math.max(300,followers*3)){riskScore=Math.min(100,riskScore+15);reasonCodes.push('ASYMMETRIC_FOLLOWING_PATTERN');evidence.push({finding:'The account follows substantially more profiles than follow it.',type:'following_pattern'});scoreBreakdown.push({signal:'Abnormal following pattern',evidence:`Following ${follows} accounts compared with ${followers} followers.`,contribution:15});}
 
     // Additional Brand Registry heuristics if brandId is given
     if (brandId) {
@@ -194,7 +203,7 @@ export const detectionService = {
           const matchingHandle = brand.officialSocialHandles.find(
             (h) =>
               h.platform.toLowerCase() === platform.toLowerCase() &&
-              h.handle.toLowerCase() === username.toLowerCase()
+              h.handle.toLowerCase().replace(/^@/,'') === username.toLowerCase().replace(/^@/,'')
           );
           if (matchingHandle) {
             verdict = "No Issue Detected";
@@ -206,6 +215,9 @@ export const detectionService = {
               finding: `Matches registered official ${platform} handle for ${brand.name}`,
               verdict: "authentic",
             });
+            scoreBreakdown=[{signal:'Official handle match',evidence:`The ${platform} handle exactly matches the registered official brand account.`,contribution:5}];
+          } else if(identityText.includes(brand.name.toLowerCase())) {
+            riskScore=Math.min(100,riskScore+25);reasonCodes.push('BRAND_NAME_USED_BY_UNREGISTERED_HANDLE');evidence.push({finding:`The account uses ${brand.name} but does not match its registered official handle.`,type:'brand_name_misuse'});scoreBreakdown.push({signal:'Unregistered brand-name use',evidence:`The account uses ${brand.name} without matching its official registered handle.`,contribution:25});
           }
         }
       } catch (err) {
@@ -213,6 +225,10 @@ export const detectionService = {
       }
     }
 
+    if(!reasonCodes.includes('OFFICIAL_BRAND_HANDLE_MATCH')){
+      if(riskScore>=60)verdict='Fake Profile';
+      else if(riskScore>=30)verdict='Needs Review';
+    }
     const riskBand = calculateRiskBand(riskScore);
 
     const detection = await createDetectionRecord({
@@ -235,6 +251,7 @@ export const detectionService = {
       isMlModel,
       reasonCodes,
       evidence,
+      scoreBreakdown,
       limitations,
       createdBy: user.id,
     });
