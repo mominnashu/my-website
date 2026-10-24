@@ -11,3 +11,9 @@
 .assistant-antenna{z-index:1;top:0;left:23px}.assistant-panel>header>.assistant-mascot{margin:-8px -2px;transform:scale(.72);animation:none}
 @keyframes assistant-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @media(max-width:560px){.assistant-launcher{width:auto;min-width:72px;height:72px;padding:0 12px}.assistant-launcher .assistant-mascot{width:48px;flex-basis:48px}}
+
+/* Transparent floating launcher */
+.assistant-launcher{width:76px;height:76px;min-width:76px;padding:7px;justify-content:center;background:transparent;box-shadow:none;border-radius:20px;color:inherit}
+.assistant-launcher:hover{background:transparent;box-shadow:none;transform:translateY(-4px) scale(1.04)}
+.assistant-launcher>span:last-child{display:none}
+@media(max-width:560px){.assistant-launcher{width:72px;min-width:72px;height:76px;padding:7px}}
