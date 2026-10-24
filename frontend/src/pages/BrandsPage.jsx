@@ -101,7 +101,7 @@ export default function BrandsPage() {
         <div>
           <h2 className="page-title">My brands</h2>
           <p className="page-subtitle">
-            Add the websites, accounts and apps that officially belong to your company.
+            Add the websites, accounts and apps that officially belong to your brand.
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
@@ -270,7 +270,7 @@ export default function BrandsPage() {
                 />
               </div>
 
-              <div style={{marginTop:12}}><label className="field-label" htmlFor="official-developers">Official app developers (comma separated)</label><input id="official-developers" className="input-field" placeholder="Your company’s app publisher name" value={developersInput} onChange={e=>setDevelopersInput(e.target.value)}/></div>
+              <div style={{marginTop:12}}><label className="field-label" htmlFor="official-developers">Official app developers (comma separated)</label><input id="official-developers" className="input-field" placeholder="Your brand’s app publisher name" value={developersInput} onChange={e=>setDevelopersInput(e.target.value)}/></div>
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
                   Save brand

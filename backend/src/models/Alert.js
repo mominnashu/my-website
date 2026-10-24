@@ -15,6 +15,7 @@ const AlertSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    assetKey: { type: String, default: "", index: true },
     brandId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",
@@ -63,5 +64,6 @@ const AlertSchema = new mongoose.Schema(
 
 AlertSchema.index({ organizationId: 1, status: 1, severity: 1 });
 AlertSchema.index({ organizationId: 1, createdAt: -1 });
+AlertSchema.index({ organizationId: 1, assetKey: 1, status: 1 });
 
 export const Alert = mongoose.model("Alert", AlertSchema);

@@ -11,6 +11,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   CreditCard,
+  BadgeCheck,
 } from 'lucide-react';
 
 export default function Navbar({
@@ -26,7 +27,7 @@ export default function Navbar({
 
   const navItems = user?.role === 'super_admin' ? [
     {id:'dashboard',label:'Platform overview',icon:Activity},
-    {id:'reports',label:'Company reports',icon:FolderGit2},
+    {id:'reports',label:'Brand reports',icon:FolderGit2},
     {id:'logs',label:'Activity logs',icon:Activity},
     {id:'system',label:'Service status',icon:Cpu},
   ] : [
@@ -35,7 +36,8 @@ export default function Navbar({
     {id:'findings',label:'Findings',icon:FolderGit2},
     {id:'alerts',label:'Alerts',icon:AlertTriangle},
     {id:'cases',label:'Investigations',icon:FolderGit2},
-    {id:'brands',label:'My brands',icon:Building2},
+    {id:'brands',label:'Brand references',icon:Building2},
+    {id:'brand-verification',label:'Brand verification',icon:BadgeCheck},
     {id:'reports',label:'Review requests',icon:User},
     {id:'billing',label:'Plan and usage',icon:CreditCard},
   ];
@@ -50,7 +52,7 @@ export default function Navbar({
           </div>
           <div>
             <div className="brand-title">Risk<span className="brand-accent">Protect</span></div>
-            <div className="brand-subtitle">{user?.role === 'super_admin' ? 'Platform team' : 'Company workspace'}</div>
+            <div className="brand-subtitle">{user?.role === 'super_admin' ? 'Platform team' : 'Brand workspace'}</div>
           </div>
         </div>
 
@@ -91,7 +93,7 @@ export default function Navbar({
               </div>
               <div className="user-meta">
                 <span className="user-name">{user.name}</span>
-                <span className="user-org">{user.organizationName || 'Analyst'}</span>
+                <span className="user-org">{user.brandName || user.organizationName || 'Brand admin'}</span>
               </div>
               <button
                 onClick={onLogout}

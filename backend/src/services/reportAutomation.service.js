@@ -52,7 +52,7 @@ export function buildAutomatedAssessment(detection) {
   const actionByBand = {
     Low: 'No strong risk signal was detected. Verify the original source and close the case unless new evidence appears.',
     Medium: 'Use caution, verify through an official source, and keep the investigation open until the evidence is confirmed or dismissed.',
-    High: 'Prioritize this investigation, avoid interacting with the asset, preserve evidence, and verify it through the official organization channel.',
+    High: 'Prioritize this investigation, avoid interacting with the asset, preserve evidence, and verify it through the official brand channel.',
     Critical: 'Treat this as urgent. Do not click, reply, pay, download, or share information; preserve evidence and escalate the investigation immediately.',
   };
   const dispositionByBand = { Low: 'dismissed_after_automated_review', Medium: 'investigation_open', High: 'priority_investigation_open', Critical: 'urgent_investigation_open' };

@@ -1,23 +1,24 @@
 export const PLANS = [
-  { id: 'student-free', audience: 'student', name: 'Student', priceMonthly: 0, checksPerMonth: 10, seats: 1, summary: 'A personal workspace for learning and individual checks.' },
-  { id: 'student-starter', audience: 'student', name: 'Student Starter', priceMonthly: 99, checksPerMonth: 40, seats: 1, summary: 'Affordable protection for regular coursework and personal checks.' },
-  { id: 'student-plus', audience: 'student', name: 'Student Plus', priceMonthly: 199, checksPerMonth: 100, seats: 1, summary: 'More checks for projects, research and frequent online activity.' },
-  { id: 'professional', audience: 'professional', name: 'Professional', priceMonthly: 499, checksPerMonth: 100, seats: 1, summary: 'More monthly checks for independent professionals.' },
-  { id: 'professional-plus', audience: 'professional', name: 'Professional Plus', priceMonthly: 999, checksPerMonth: 500, seats: 5, summary: 'Higher capacity for a busy professional workspace.' },
-  { id: 'organization', audience: 'organization', name: 'Organization', priceMonthly: 4999, checksPerMonth: 2500, seats: 25, summary: 'Centralized protection for growing organizations.' },
-  { id: 'organization-scale', audience: 'organization', name: 'Organization Scale', priceMonthly: 9999, checksPerMonth: 10000, seats: 100, summary: 'Higher capacity for frequent organization checks.' },
+  { id: 'brand', audience: 'brand', name: 'Brand', priceMonthly: 4999, checksPerMonth: 2500, seats: 25, summary: 'Centralized protection and verification for growing brands.' },
+  { id: 'brand-scale', audience: 'brand', name: 'Brand Scale', priceMonthly: 9999, checksPerMonth: 10000, seats: 100, summary: 'Higher capacity for brands with frequent investigations.' },
 ];
 
 export const AUDIENCES = [
-  { id: 'student', name: 'Student', description: 'Personal learning and individual checks' },
-  { id: 'professional', name: 'Professional', description: 'Independent professionals and small teams' },
-  { id: 'organization', name: 'Organization', description: 'Companies and larger teams' },
+  { id: 'brand', name: 'Brand', description: 'Brand owners and protection teams' },
 ];
 
-export function getPlan(id) { return PLANS.find((plan) => plan.id === id); }
-export function recommendedPlanId(audience) {
-  return audience === 'student' ? 'student-starter' : audience === 'professional' ? 'professional' : 'organization';
-}
+// Existing subscriptions are migrated silently; removed plan names are never exposed by the public plans API.
+const LEGACY_PLAN_IDS = {
+  organization: 'brand',
+  'organization-scale': 'brand-scale',
+  professional: 'brand',
+  'professional-plus': 'brand-scale',
+  'student-free': 'brand',
+  'student-starter': 'brand',
+  'student-plus': 'brand-scale',
+};
+export function getPlan(id) { return PLANS.find((plan) => plan.id === (LEGACY_PLAN_IDS[id] || id)); }
+export function recommendedPlanId() { return 'brand'; }
 
 export const BILLING_CYCLES = ['monthly', 'yearly'];
 
@@ -29,18 +30,17 @@ export function billingCycleFor(plan, billingCycle = 'monthly') {
 }
 
 export function subscriptionFor(plan, now = new Date(), billingCycle = 'monthly') {
-  const studentFree = plan.id === 'student-free';
   const trialEndsAt = new Date(now);
-  trialEndsAt.setDate(trialEndsAt.getDate() + (studentFree ? 0 : 3));
+  trialEndsAt.setDate(trialEndsAt.getDate() + 3);
   return {
     planId: plan.id,
     billingCycle: billingCycleFor(plan, billingCycle),
-    status: studentFree ? 'active' : 'trialing',
+    status: 'trialing',
     trialStartsAt: now,
     trialEndsAt,
     monthlyChecksUsed: 0,
     usagePeriodStartedAt: now,
-    paymentStatus: studentFree ? 'not_required' : 'not_configured',
+    paymentStatus: 'not_configured',
   };
 }
 
@@ -77,6 +77,6 @@ export function publicPlan(plan) {
     interval: 'month',
     supportedBillingCycles: plan.priceMonthly === 0 ? ['monthly'] : BILLING_CYCLES,
     annualDiscountPercent: plan.priceMonthly === 0 ? 0 : 20,
-    trialDays: plan.id === 'student-free' ? 0 : 3,
+    trialDays: 3,
   };
 }

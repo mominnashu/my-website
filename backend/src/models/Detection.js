@@ -71,6 +71,13 @@ const DetectionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    analystDisposition: {
+      type: String,
+      enum: ["pending", "confirmed_threat", "false_positive"],
+      default: "pending",
+      index: true,
+    },
+    analystNotes: { type: String, default: "" },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

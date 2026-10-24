@@ -19,7 +19,7 @@ function slugify(text) {
 }
 
 export const authService = {
-  async register({ email, password, name, organizationName, audience = "organization", planId, billingCycle = "monthly" }) {
+  async register({ email, password, name, organizationName, audience = "brand", planId, billingCycle = "monthly" }) {
     if (mongoose.connection.readyState !== 1) throw Object.assign(new Error("Company accounts require a database connection. Please try again shortly."), { statusCode: 503 });
     if (mongoose.connection.readyState !== 1) {
       const existing = memoryStore.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
@@ -89,7 +89,7 @@ export const authService = {
     if (!selectedPlan || selectedPlan.audience !== audience) {
       const error = new Error("Choose a plan available for your account type"); error.statusCode = 400; throw error;
     }
-    const orgName = organizationName || (audience === "student" ? `${name.split(" ")[0]}'s workspace` : `${name.split(" ")[0]}'s Organization`);
+    const orgName = organizationName || `${name.split(" ")[0]}'s Brand`;
     let baseSlug = slugify(orgName);
     let slug = baseSlug;
     let count = 1;
@@ -138,7 +138,9 @@ export const authService = {
         role: user.role,
         organizationId: organization._id.toString(),
         organizationName: organization.name,
-        audience: organization.audience,
+        brandId: organization._id.toString(),
+        brandName: organization.name,
+        audience: "brand",
       },
     };
   },
@@ -225,8 +227,10 @@ export const authService = {
         name: user.name,
         role: user.role,
         organizationId: user.organizationId.toString(),
-        organizationName: org ? org.name : "Organization",
-        audience: org?.audience || "organization",
+        organizationName: org ? org.name : "Brand",
+        brandId: user.organizationId.toString(),
+        brandName: org ? org.name : "Brand",
+        audience: "brand",
       },
     };
   },
@@ -271,7 +275,9 @@ export const authService = {
       status: user.status,
       organizationId: user.organizationId ? user.organizationId.toString() : null,
       organizationName: org ? org.name : null,
-      audience: org?.audience || "organization",
+      brandId: user.organizationId ? user.organizationId.toString() : null,
+      brandName: org ? org.name : null,
+      audience: "brand",
       createdAt: user.createdAt,
     };
   },

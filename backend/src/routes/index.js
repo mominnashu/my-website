@@ -9,10 +9,12 @@ import systemRoutes from "./system.routes.js";
 import workspaceRoutes from "./workspace.routes.js";
 import billingRoutes from "./billing.routes.js";
 import chatbotRoutes from "./chatbot.routes.js";
+import brandVerificationRoutes from "./brandVerification.routes.js";
 const apiRouter = Router();
 apiRouter.use("/workspace", workspaceRoutes);
 apiRouter.use("/billing", billingRoutes);
 apiRouter.use("/chatbot", chatbotRoutes);
+apiRouter.use("/brand-verifications", brandVerificationRoutes);
 
 apiRouter.use("/auth", authRoutes);
 apiRouter.use("/brands", brandRoutes);

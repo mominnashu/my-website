@@ -11,6 +11,7 @@ import CasesPage from './pages/CasesPage';
 import BrandsPage from './pages/BrandsPage';
 import SystemStatusPage from './pages/SystemStatusPage';
 import BillingPage from './pages/BillingPage';
+import BrandVerificationPage from './pages/BrandVerificationPage';
 import { api, getCurrentUser } from './services/api';
 import './App.css';
 import './LightTheme.css';
@@ -22,7 +23,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [systemHealth, setSystemHealth] = useState(null);
-  const [authPlan, setAuthPlan] = useState({ audience: 'organization', planId: '', billingCycle: 'monthly' });
+  const [authPlan, setAuthPlan] = useState({ audience: 'brand', planId: '', billingCycle: 'monthly' });
   const [authMode, setAuthMode] = useState('signin');
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function App() {
     setActiveTab('cases');
   };
 
-  if (!user) return <><LandingPage onStart={(audience='organization', planId='', billingCycle='monthly') => { setAuthPlan({audience,planId,billingCycle}); setAuthMode('register'); setShowAuthModal(true); }} onSignIn={()=>{setAuthMode('signin');setShowAuthModal(true);}} /><AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onAuthSuccess={setUser} initialAudience={authPlan.audience} initialPlanId={authPlan.planId} initialBillingCycle={authPlan.billingCycle} initialMode={authMode} /></>;
+  if (!user) return <><LandingPage onStart={(_audience='brand', planId='', billingCycle='monthly') => { setAuthPlan({audience:'brand',planId,billingCycle}); setAuthMode('register'); setShowAuthModal(true); }} onSignIn={()=>{setAuthMode('signin');setShowAuthModal(true);}} /><AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onAuthSuccess={setUser} initialAudience="brand" initialPlanId={authPlan.planId} initialBillingCycle={authPlan.billingCycle} initialMode={authMode} /></>;
 
   return (
     <div className="app-layout rp-workspace">
@@ -72,7 +73,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <div className="workspace-shell">
-      <div className="workspace-topbar"><span>Workspace <span className="breadcrumb-separator">/</span> <strong>{({ dashboard: 'Overview', detectors: 'Check evidence', findings: 'Findings', alerts: 'Alerts', cases: 'Investigations', brands: 'My brands', system: 'Service status', reports: 'Review requests', billing:'Plan and usage', logs:'Activity logs' })[activeTab]}</strong></span><span className="workspace-label">{user.organizationName || 'RiskProtect'}</span></div>
+      <div className="workspace-topbar"><span>Brand workspace <span className="breadcrumb-separator">/</span> <strong>{({ dashboard: 'Overview', detectors: 'Check evidence', findings: 'Findings', alerts: 'Alerts', cases: 'Investigations', brands: 'Brand references', 'brand-verification':'Brand verification', system: 'Service status', reports: 'Review requests', billing:'Plan and usage', logs:'Activity logs' })[activeTab]}</strong></span><span className="workspace-label">{user.brandName || user.organizationName || 'RiskProtect'}</span></div>
       <main className="main-content" id="main-content">
         {activeTab === 'findings' && <FindingsPage onInvestigate={handleEscalateToCase} />}
         {activeTab === 'reports' && <ReportsPage owner={user.role === 'super_admin'} />}
@@ -101,6 +102,7 @@ export default function App() {
         )}
 
         {activeTab === 'brands' && <BrandsPage />}
+        {activeTab === 'brand-verification' && <BrandVerificationPage />}
 
         {activeTab === 'system' && <SystemStatusPage />}
         {activeTab === 'billing' && <BillingPage />}

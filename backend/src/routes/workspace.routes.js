@@ -11,18 +11,46 @@ import { processOcrAndDetect } from '../services/ocr.service.js';
 import { detectionService } from '../services/detection.service.js';
 import { entitlementFor, shouldRenewMonthlyUsage } from '../services/billing.service.js';
 import { AuditLog } from '../models/AuditLog.js';
+import { Alert } from '../models/Alert.js';
+import { Case } from '../models/Case.js';
 const router = Router();
 const wrap = fn => (req,res,next) => Promise.resolve(fn(req,res)).catch(error => { if (error.name === 'ZodError') { return next(Object.assign(new Error(error.issues.map(i => i.message).join('; ')), {statusCode:400})); } if (error.message?.startsWith('No readable text') || error.message?.startsWith('Server OCR failed:')) return next(Object.assign(new Error('No readable evidence was found. Upload a clearer screenshot with the required information.'), { statusCode: 422 })); next(error); });
 const fail = (message, statusCode=422) => { throw Object.assign(new Error(message), { statusCode }); };
-const summary = d => ({ _id: d._id, detectorType: d.detectorType, verdict: d.verdict, riskScore: d.riskScore, riskBand: d.riskBand, limitations: 'Automated assessment of submitted evidence. Verify against the original source before taking action.', createdAt: d.createdAt });
+const summary = d => ({ _id: d._id, detectorType: d.detectorType, verdict: d.verdict, riskScore: d.riskScore, riskBand: d.riskBand, analystDisposition:d.analystDisposition||'pending', limitations: 'Automated assessment of submitted evidence. Verify against the original source before taking action.', createdAt: d.createdAt });
 router.use(authenticate);
 router.get('/findings', wrap(async (req,res) => {
  const query = z.object({ page: z.coerce.number().int().min(1).max(10000).default(1), riskBand: z.enum(['Low','Medium','High','Critical']).optional(), detectorType: z.enum(['social_profile','brand_page','scam_text','mobile_app','url']).optional() }).parse(req.query);
- const filter = { organizationId: req.user.organizationId };
+ const filter = { organizationId: req.user.organizationId, analystDisposition: { $ne:'false_positive' } };
  if(query.riskBand) filter.riskBand = query.riskBand;
  if(query.detectorType) filter.detectorType = query.detectorType;
  const [items,total] = await Promise.all([Detection.find(filter).sort({createdAt:-1}).skip((query.page-1)*20).limit(20), Detection.countDocuments(filter)]);
  return sendSuccess(res,{items:items.map(summary), total, page:query.page, totalPages:Math.max(1,Math.ceil(total/20))});
+}));
+
+router.post('/findings/:id/false-positive', wrap(async (req,res) => {
+ if (!/^[a-f\d]{24}$/i.test(req.params.id)) fail('Invalid finding',400);
+ const body=z.object({notes:z.string().trim().min(3).max(1000)}).parse(req.body);
+ const detection=await Detection.findOneAndUpdate({_id:req.params.id,organizationId:req.user.organizationId},{$set:{analystDisposition:'false_positive',analystNotes:body.notes}},{new:true});
+ if(!detection) fail('Finding not found',404);
+ await Alert.updateMany({detectionId:detection._id,organizationId:req.user.organizationId},{$set:{status:'resolved',resolutionNotes:`False positive: ${body.notes}`,resolvedAt:new Date()}});
+ await AuditLog.create({organizationId:req.user.organizationId,actorId:req.user.id,action:'FINDING_FALSE_POSITIVE',resourceType:'Detection',resourceId:detection._id.toString(),details:{notes:body.notes}});
+ return sendSuccess(res,{detection:summary(detection)});
+}));
+
+router.post('/findings/:id/takedown-draft', wrap(async (req,res) => {
+ if (!/^[a-f\d]{24}$/i.test(req.params.id)) fail('Invalid finding',400);
+ const detection=await Detection.findOneAndUpdate({_id:req.params.id,organizationId:req.user.organizationId},{$set:{analystDisposition:'confirmed_threat'}},{new:true});
+ if(!detection) fail('Finding not found',404);
+ const evidence=(detection.evidence||[]).map(item=>typeof item==='string'?item:JSON.stringify(item)).slice(0,10);
+ const reasons=(detection.reasonCodes||[]).map(code=>String(code).replaceAll('_',' ').toLowerCase());
+ const checklist=[`Finding type: ${detection.detectorType.replaceAll('_',' ')}`,`Risk: ${detection.riskBand} (${detection.riskScore}/100)`,...reasons.map(reason=>`Signal: ${reason}`),...evidence.map(item=>`Evidence: ${item.slice(0,240)}`)];
+ const draft={subject:`Takedown request — suspected ${detection.detectorType.replaceAll('_',' ')}`,recipient:'Platform Trust & Safety Team',body:`RiskProtect identified and an analyst confirmed a suspected deceptive asset. The asset presents a ${detection.riskBand.toLowerCase()} risk with a score of ${detection.riskScore}/100. Please review the attached evidence, preserve relevant records, and remove or restrict the asset if it violates impersonation, fraud, or deceptive-content policies. This draft requires analyst review before submission.`,evidenceChecklist:checklist,generatedAt:new Date()};
+ let investigation=await Case.findOne({organizationId:req.user.organizationId,relatedDetections:detection._id});
+ if(investigation){investigation.takedownDraft=draft;investigation.status='investigating';await investigation.save();}
+ else investigation=await Case.create({organizationId:req.user.organizationId,createdBy:req.user.id,title:`Takedown: ${detection.detectorType.replaceAll('_',' ')}`,description:'Analyst-confirmed threat with an automatically prepared takedown report draft.',priority:['Critical','High'].includes(detection.riskBand)?'high':'medium',status:'open',relatedDetections:[detection._id],takedownDraft:draft});
+ if(['Critical','High'].includes(detection.riskBand)&&!await Alert.exists({organizationId:req.user.organizationId,detectionId:detection._id})) await Alert.create({organizationId:req.user.organizationId,detectionId:detection._id,brandId:detection.brandId,title:`High-risk ${detection.detectorType.replaceAll('_',' ')} confirmed`,severity:detection.riskBand==='Critical'?'critical':'high',status:'new'});
+ await AuditLog.create({organizationId:req.user.organizationId,actorId:req.user.id,action:'TAKEDOWN_DRAFT_CREATE',resourceType:'Case',resourceId:investigation._id.toString(),details:{detectionId:detection._id.toString()}});
+ return sendSuccess(res,{draft,investigation},201);
 }));
 
 router.get('/reports', wrap(async (req,res) => {
@@ -33,7 +61,7 @@ router.get('/reports', wrap(async (req,res) => {
 router.post('/reports', wrap(async (req,res) => {
  const body = z.object({detectionId:z.string().regex(/^[a-f\d]{24}$/i),message:z.string().trim().min(5).max(2000)}).parse(req.body);
  const detection = await Detection.findOne({_id:body.detectionId,organizationId:req.user.organizationId});
- if (!detection) fail('Detection not found in your company workspace',404);
+ if (!detection) fail('Detection not found in your brand workspace',404);
  const report = await Report.create({...body,organizationId:req.user.organizationId,createdBy:req.user.id});
  await AuditLog.create({organizationId:req.user.organizationId,actorId:req.user.id,action:'REPORT_CREATE',resourceType:'Report',resourceId:report._id.toString(),details:{status:report.status}});
  return sendSuccess(res,{report},201);
@@ -46,7 +74,7 @@ router.patch('/reports/:id', requireRoles('super_admin'), wrap(async (req,res) =
  await AuditLog.create({organizationId:report.organizationId,actorId:req.user.id,action:'REPORT_STATUS_UPDATE',resourceType:'Report',resourceId:report._id.toString(),details:{status:report.status,hasOwnerNote:!!report.ownerNote}});
  return sendSuccess(res,{report});
 }));
-router.get('/companies', requireRoles('super_admin'), wrap(async (req,res) => {
+router.get('/brand-workspaces', requireRoles('super_admin'), wrap(async (req,res) => {
  const items = await Organization.find().select('name status audience subscription createdAt').sort({createdAt:-1}).limit(200);
  return sendSuccess(res,{items});
 }));
@@ -56,7 +84,7 @@ router.post('/scan', uploadSingleImage, wrap(async (req,res) => {
  if (req.body.brandId) {
   if (!/^[a-f\d]{24}$/i.test(req.body.brandId)) fail('Choose a registered brand');
   brand = await Brand.findOne({_id:req.body.brandId,organizationId:req.user.organizationId});
-  if (!brand) fail('Brand not found in your company workspace',404);
+  if (!brand) fail('Brand reference not found in your workspace',404);
  }
  if (['brand_page','mobile_app'].includes(detectorType) && !brand) {
   brand = await Brand.findOne({organizationId:req.user.organizationId,status:'active'}).sort({createdAt:1});

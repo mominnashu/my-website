@@ -1,4 +1,4 @@
-export const USER_ROLES = ["super_admin", "admin", "analyst", "viewer"];
+export const USER_ROLES = ["super_admin", "admin"];
 
 export const DETECTOR_TYPES = [
   "social_profile",

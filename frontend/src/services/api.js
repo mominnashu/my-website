@@ -1,9 +1,7 @@
 // RiskProtect Frontend API Client
 
-export const API_BASE = import.meta.env.VITE_API_BASE_URL
-  || (import.meta.env.PROD
-    ? 'https://my-website-th9l.onrender.com/api/v1'
-    : '/api/v1');
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL
+  || 'https://my-website-th9l.onrender.com/api/v1').replace(/\/$/, '');
 
 export function getToken() {
   return localStorage.getItem('rp_auth_token') || '';
@@ -122,7 +120,7 @@ export const api = {
   async getSubscription() { return request('/billing/subscription'); },
   async changePlan(planId, billingCycle) { return request('/billing/change-plan', { method: 'POST', body: JSON.stringify({ planId, ...(billingCycle ? { billingCycle } : {}) }) }); },
   async ownerLogs() { return request('/billing/owner/logs'); },
-  async updateCompany(id, payload) { return request(`/billing/owner/companies/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }); },
+  async updateCompany(id, payload) { return request(`/billing/owner/brands/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }); },
 
   // Brands
   async listBrands() {
@@ -141,6 +139,11 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  async verifyBrand(payload) { return request('/brand-verifications', { method: 'POST', body: JSON.stringify(payload) }); },
+  async listBrandVerifications() { return request('/brand-verifications'); },
+  async markFalsePositive(id, notes) { return request(`/workspace/findings/${id}/false-positive`, { method:'POST', body:JSON.stringify({ notes }) }); },
+  async createTakedownDraft(id) { return request(`/workspace/findings/${id}/takedown-draft`, { method:'POST' }); },
 
   // Threat Detections (5 Engines)
   async detectSocialProfile(payload) {

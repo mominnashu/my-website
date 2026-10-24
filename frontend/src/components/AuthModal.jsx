@@ -3,13 +3,13 @@ import { X, ShieldCheck, Mail, Lock, User, Building } from 'lucide-react';
 import { api } from '../services/api';
 import './AuthModal.css';
 
-export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudience = 'organization', initialPlanId = '', initialBillingCycle = 'monthly', initialMode = 'signin' }) {
+export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudience = 'brand', initialPlanId = '', initialBillingCycle = 'monthly', initialMode = 'signin' }) {
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [organizationName, setOrganizationName] = useState('');
-  const [audience, setAudience] = useState(initialAudience);
+  const [audience] = useState('brand');
   const [planId, setPlanId] = useState(initialPlanId);
   const [billingCycle, setBillingCycle] = useState(initialBillingCycle);
   const [plans, setPlans] = useState([]);
@@ -17,7 +17,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudie
   const [error, setError] = useState('');
   const dialogRef = useRef(null);
 
-  useEffect(() => { if (isOpen) { setAudience(initialAudience); setPlanId(initialPlanId); setBillingCycle(initialAudience === 'student' ? 'monthly' : initialBillingCycle); setIsRegister(initialMode === 'register'); } }, [isOpen, initialAudience, initialPlanId, initialBillingCycle, initialMode]);
+  useEffect(() => { if (isOpen) { setPlanId(initialPlanId); setBillingCycle(initialBillingCycle); setIsRegister(initialMode === 'register'); } }, [isOpen, initialPlanId, initialBillingCycle, initialMode]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -102,7 +102,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudie
               </h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 {isRegister
-                  ? 'Choose the workspace that fits how you work.'
+                  ? 'Create a workspace for your brand protection team.'
                   : 'Sign in to your workspace.'}
               </p>
             </div>
@@ -117,12 +117,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudie
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {isRegister && (
             <>
-              <div>
-                <label className="field-label" htmlFor="auth-audience">I’m joining as</label>
-                <select id="auth-audience" className="input-field" value={audience} onChange={e=>{setAudience(e.target.value);setPlanId('');if(e.target.value==='student')setBillingCycle('monthly');}}>
-                  <option value="student">Student</option><option value="professional">Professional</option><option value="organization">Organization</option>
-                </select>
-              </div>
               <div>
                 <label className="field-label" htmlFor="auth-name">Full Name</label>
                 <div className="input-wrap">
@@ -140,14 +134,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudie
               </div>
 
               <div>
-                <label className="field-label" htmlFor="auth-company">{audience === 'organization' ? 'Organization name' : 'Workspace name (optional)'}</label>
+                <label className="field-label" htmlFor="auth-company">Brand name</label>
                 <div className="input-wrap">
                   <Building size={16} className="input-icon" />
                   <input
                     type="text"
-                    required={audience === 'organization'}
+                    required
                     className="input-field with-icon"
-                    placeholder={audience === 'organization' ? 'e.g. Apex Global Bank' : 'e.g. My workspace'}
+                    placeholder="e.g. Apex Global Bank"
                     id="auth-company"
                     value={organizationName}
                     onChange={(e) => setOrganizationName(e.target.value)}
@@ -168,7 +162,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialAudie
                   {!plans.length && planId && <option value={planId}>Your selected plan</option>}
                   {audiencePlans.map(plan => <option key={plan.id} value={plan.id}>{plan.name} · {plan.priceMonthly === 0 ? `${plan.checksPerMonth} checks free` : billingCycle === 'yearly' ? `3-day trial · ₹${plan.priceYearly.toLocaleString('en-IN')}/year after` : `3-day trial · ₹${plan.priceMonthly.toLocaleString('en-IN')}/month after`}</option>)}
                 </select>
-                <small className="section-subtitle">{selectedIsFree ? 'Student Free includes 10 checks every month with no trial or payment.' : `Your first 3 days are free with up to 25 checks. ${billingCycle === 'yearly' ? 'Yearly billing saves 20% after the trial.' : 'You can choose or activate a monthly plan after the trial.'}`}</small>
+                <small className="section-subtitle">Your first 3 days are free with up to 25 checks. {billingCycle === 'yearly' ? 'Yearly billing saves 20% after the trial.' : 'You can activate a monthly brand plan after the trial.'}</small>
               </div>
             </>
           )}

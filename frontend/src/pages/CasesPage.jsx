@@ -185,6 +185,8 @@ export default function CasesPage({ initialDetectionForCase }) {
                 </div>
               )}
 
+              {selectedCase.takedownDraft?.body && <section className="upload-requirements" style={{marginTop:18}}><span className="eyebrow">TAKEDOWN REPORT DRAFT</span><h4>{selectedCase.takedownDraft.subject}</h4><p>To: {selectedCase.takedownDraft.recipient}</p><p className="auto-response">{selectedCase.takedownDraft.body}</p><strong>Evidence included</strong><ul>{selectedCase.takedownDraft.evidenceChecklist?.map(item=><li key={item}>{item}</li>)}</ul><small>Analyst review is required before external submission.</small></section>}
+
               {/* Timeline Notes */}
               <div style={{ marginTop: 24 }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: 12 }}>

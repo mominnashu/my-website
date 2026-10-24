@@ -64,6 +64,13 @@ const CaseSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    takedownDraft: {
+      subject: { type: String, default: "" },
+      recipient: { type: String, default: "Platform Trust & Safety Team" },
+      body: { type: String, default: "" },
+      evidenceChecklist: { type: [String], default: [] },
+      generatedAt: { type: Date },
+    },
     closedAt: {
       type: Date,
     },

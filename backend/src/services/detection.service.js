@@ -36,6 +36,10 @@ async function createDetectionRecord(doc) {
 
 async function createAlertRecord(doc) {
   if (mongoose.connection.readyState !== 1) {
+    if (doc.assetKey) {
+      const existing = memoryStore.alerts.find(item => item.organizationId === doc.organizationId && item.assetKey === doc.assetKey && item.status !== 'resolved');
+      if (existing) return existing;
+    }
     const record = {
       _id: "alt-" + uuidv4().slice(0, 8),
       createdAt: new Date(),
@@ -44,7 +48,12 @@ async function createAlertRecord(doc) {
     memoryStore.alerts.push(record);
     return record;
   }
-  return Alert.create(sanitizeDoc(doc));
+  const clean=sanitizeDoc(doc);
+  if (clean.assetKey) {
+    const existing=await Alert.findOne({organizationId:clean.organizationId,assetKey:clean.assetKey,status:{$ne:'resolved'}});
+    if(existing) return existing;
+  }
+  return Alert.create(clean);
 }
 
 async function findBrandById(brandId) {
@@ -204,6 +213,7 @@ export const detectionService = {
         title: `Impersonation Alert: @${username} on ${platform}`,
         severity: calculateSeverityFromRisk(riskBand),
         status: "new",
+        assetKey: `social_profile:${String(platform).trim().toLowerCase()}:${String(username).trim().replace(/^@/,'').toLowerCase()}`,
       });
     }
 
@@ -537,6 +547,7 @@ export const detectionService = {
         title: `Rogue Mobile App Detected: ${app_name} (${package_name})`,
         severity: calculateSeverityFromRisk(riskBand),
         status: "new",
+        assetKey: `mobile_app:${String(package_name||app_name).trim().toLowerCase()}`,
       });
     }
 

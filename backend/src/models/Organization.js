@@ -21,7 +21,7 @@ const OrganizationSchema = new mongoose.Schema(
       default: "active",
       index: true,
     },
-    audience: { type: String, enum: ["student", "professional", "organization"], default: "organization", index: true },
+    audience: { type: String, enum: ["brand"], default: "brand", index: true },
     subscription: {
       planId: { type: String, default: null },
       billingCycle: { type: String, enum: ["monthly", "yearly"], default: "monthly" },
